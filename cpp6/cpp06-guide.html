@@ -1,0 +1,1394 @@
+<title>CPP06 Guided — C++ casts (no solutions)</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1b222c; --panel3:#212a35;
+    --border:#2a323d; --border2:#38434f;
+    --text:#e2e8f0; --muted:#8b97a6; --dim:#63707e;
+    --accent:#49c9dc; --accent-soft:#49c9dc22;
+    --amber:#f0b45f; --amber-soft:#f0b45f1e;
+    --good:#5ec98a; --good-soft:#5ec98a1e;
+    --bad:#e5736b; --bad-soft:#e5736b1e;
+    --code:#0a0d12;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:var(--sans); font-size:17px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+    padding:.7rem 1.1rem; background:rgba(14,17,22,.92);
+    border-bottom:1px solid var(--border); backdrop-filter:blur(6px);
+  }
+  .brand{font-weight:700; letter-spacing:.02em; white-space:nowrap}
+  .brand .k{color:var(--accent); font-family:var(--mono); font-size:.9rem}
+  .brand .sub{color:var(--muted); font-weight:400; font-size:.86rem}
+  .tabs{display:flex; gap:.25rem; flex-wrap:wrap; margin-left:.5rem}
+  .tab{
+    background:transparent; border:1px solid transparent; color:var(--muted);
+    font:inherit; font-size:.9rem; padding:.35rem .7rem; border-radius:8px; cursor:pointer;
+  }
+  .tab:hover{color:var(--text); background:var(--panel2)}
+  .tab.active{color:var(--bg); background:var(--accent); font-weight:600}
+  .tab:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .spacer{flex:1}
+  .progwrap{display:flex; align-items:center; gap:.5rem; min-width:170px}
+  .progbar{flex:1; height:8px; background:var(--panel3); border-radius:99px; overflow:hidden}
+  .progfill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--good)); transition:width .3s}
+  .progtext{font-family:var(--mono); font-size:.78rem; color:var(--muted); white-space:nowrap}
+  .btn-reset{
+    background:transparent; border:1px solid var(--border2); color:var(--muted);
+    font:inherit; font-size:.8rem; padding:.3rem .6rem; border-radius:8px; cursor:pointer;
+  }
+  .btn-reset:hover{color:var(--bad); border-color:var(--bad)}
+  .langbtn{
+    background:transparent; border:1px solid var(--amber); color:var(--amber);
+    font:inherit; font-size:.8rem; padding:.3rem .65rem; border-radius:8px; cursor:pointer; white-space:nowrap;
+  }
+  .langbtn:hover{background:var(--amber-soft)}
+  .langbtn.on{background:var(--amber); color:#241a08; font-weight:700}
+
+  .dr{display:none; margin:.5rem 0 0; padding:.5rem .75rem .55rem;
+      border-left:3px solid var(--amber); background:var(--amber-soft);
+      border-radius:0 8px 8px 0; font-size:.95em; color:#f3ddb6;}
+  .dr::before{content:"\1F1F2\1F1E6  Darija"; display:block; font-family:var(--mono);
+      font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--amber); margin-bottom:.28rem;}
+  .dr pre{background:transparent; border:none; padding:0; margin:.25rem 0 0; color:inherit}
+  .dr ul{margin:.2rem 0 0}
+  body.dr-on .dr{display:block}
+  .hintpanel .dr{margin-top:.6rem}
+
+  .view{display:none}
+  .view.active{display:block}
+  .guidewrap{display:grid; grid-template-columns:1fr; gap:0}
+  @media (min-width:940px){ .guidewrap{grid-template-columns:290px 1fr} }
+
+  aside.sidebar{
+    border-right:1px solid var(--border); padding:1rem .8rem 3rem;
+    max-height:calc(100vh - 56px); overflow-y:auto; position:sticky; top:56px;
+  }
+  @media (max-width:939px){ aside.sidebar{position:static; max-height:none; border-right:none; border-bottom:1px solid var(--border)} }
+  .side-part{margin-top:1.1rem}
+  .side-part:first-child{margin-top:0}
+  .side-part .plabel{
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--dim); padding:0 .5rem; margin-bottom:.35rem;
+  }
+  .side-step{
+    display:flex; align-items:center; gap:.6rem; width:100%; text-align:left;
+    background:transparent; border:1px solid transparent; color:var(--muted);
+    font:inherit; font-size:.9rem; padding:.42rem .5rem; border-radius:8px; cursor:pointer;
+  }
+  .side-step:hover{color:var(--text); background:var(--panel2)}
+  .side-step.active{background:var(--panel3); color:var(--text); border-color:var(--border2)}
+  .side-step:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+  .dot{width:16px; height:16px; border-radius:99px; flex:none; display:grid; place-items:center; font-size:.62rem; font-family:var(--mono)}
+  .dot.todo{border:2px solid var(--border2)}
+  .dot.done{background:var(--good); color:var(--bg); border:2px solid var(--good)}
+  .dot.current{border:2px solid var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+  .side-step .st-title{flex:1; min-width:0}
+
+  main.stepmain{padding:1.4rem clamp(1rem,4vw,2.6rem) 5rem; max-width:920px}
+  .crumb{font-family:var(--mono); font-size:.74rem; letter-spacing:.1em; text-transform:uppercase; color:var(--accent)}
+  h1.steptitle{font-size:clamp(1.4rem,3.5vw,2rem); margin:.4rem 0 .3rem; line-height:1.15; text-wrap:balance}
+
+  .whybox{background:linear-gradient(180deg,var(--panel2),var(--panel)); border:1px solid var(--border2);
+    border-left:4px solid var(--accent); border-radius:10px; padding:.8rem 1rem; margin:0 0 1.4rem; font-size:.94rem}
+  .whybox b{color:var(--accent)}
+
+  .box{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:1.05rem 1.2rem; margin:1rem 0}
+  .box h3{margin:0 0 .55rem; font-size:.98rem; display:flex; align-items:center; gap:.5rem}
+  .box h3 .ic{font-family:var(--mono); font-size:.72rem; padding:.14rem .5rem; border-radius:6px; letter-spacing:.06em}
+  .box p:first-of-type{margin-top:0}
+  .box p:last-child{margin-bottom:0}
+  .box.goalb{border-left:4px solid var(--good)}
+  .box.goalb h3 .ic{background:var(--good-soft); color:var(--good)}
+  .box.skel h3 .ic{background:var(--panel3); color:var(--text)}
+  .box.your{border-left:4px solid var(--accent)}
+  .box.your h3 .ic{background:var(--accent-soft); color:var(--accent)}
+  .box.run{background:#0b1016; border-color:var(--border2)}
+  .box.run h3 .ic{background:var(--good-soft); color:var(--good)}
+  .box.explain h3 .ic{background:var(--amber-soft); color:var(--amber)}
+  ul.tight{margin:.4rem 0; padding-left:1.2rem}
+  ul.tight li{margin:.28rem 0}
+  .sz{font-family:var(--mono); font-size:.74rem; color:var(--muted); border:1px solid var(--border2); border-radius:6px; padding:.05rem .4rem; margin-left:.4rem}
+
+  code{font-family:var(--mono); font-size:.86em; background:var(--panel3); padding:.06em .35em; border-radius:5px; color:#eaf2f6}
+  pre{background:var(--code); border:1px solid var(--border); border-radius:9px; padding:.8rem 1rem; overflow-x:auto; font-family:var(--mono); font-size:.82rem; line-height:1.5; margin:.6rem 0; color:#cfe6ec; tab-size:4}
+  pre.cmd{color:#bfe6c9}
+  pre .muted{color:var(--dim)}
+  .tag{display:inline-block; font-family:var(--mono); font-size:.72rem; padding:.1rem .45rem; border-radius:6px; border:1px solid var(--border2); color:var(--muted)}
+
+  /* code block with copy */
+  .cblock{border:1px solid var(--border2); border-radius:9px; margin:.6rem 0; overflow:hidden; background:var(--code)}
+  .cbhead{display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.4rem .7rem; background:var(--panel3); border-bottom:1px solid var(--border)}
+  .cbname{font-family:var(--mono); font-size:.76rem; color:var(--accent)}
+  .copybtn{background:transparent; border:1px solid var(--border2); color:var(--muted); font:inherit; font-size:.74rem; padding:.15rem .55rem; border-radius:6px; cursor:pointer}
+  .copybtn:hover{color:var(--text); border-color:var(--accent)}
+  .cblock pre{border:none; margin:0; border-radius:0}
+
+  .explabel{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin:.5rem 0 .1rem}
+  .mism{margin-top:.7rem; border-top:1px dashed var(--border2); padding-top:.6rem}
+  .mismhead{font-size:.85rem; color:var(--bad); font-weight:600; margin-bottom:.2rem}
+
+  /* hints */
+  .hints{margin:.9rem 0 0}
+  .hintbtns{display:flex; gap:.5rem; flex-wrap:wrap}
+  .hintbtn{background:var(--panel2); border:1px solid var(--border2); color:var(--muted); font:inherit; font-size:.82rem; padding:.35rem .7rem; border-radius:8px; cursor:pointer}
+  .hintbtn:hover{color:var(--text); border-color:var(--accent)}
+  .hintbtn.open{color:var(--accent); border-color:var(--accent); background:var(--accent-soft)}
+  .hintpanel{display:none; margin-top:.7rem; padding:.7rem 1rem; border-left:3px solid var(--amber); background:var(--panel2); border-radius:0 8px 8px 0}
+  .hintpanel.show{display:block}
+  .hintpanel .lvl{font-family:var(--mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--amber); margin-bottom:.25rem}
+  .hintpanel pre{background:transparent; border:none; padding:0; margin:0; color:var(--text); white-space:pre-wrap}
+
+  /* controls row */
+  .ctrlrow{display:flex; flex-wrap:wrap; align-items:center; gap:.7rem; margin:1.3rem 0 0; padding:.8rem 1rem; border:1px solid var(--border2); border-radius:10px; background:var(--panel)}
+  .timer{display:flex; align-items:center; gap:.5rem}
+  .timerdisp{font-family:var(--mono); font-size:1.1rem; color:var(--text); min-width:3.4rem; text-align:center; font-variant-numeric:tabular-nums}
+  .tbtn{background:var(--panel2); border:1px solid var(--border2); color:var(--muted); font:inherit; font-size:.76rem; padding:.25rem .55rem; border-radius:6px; cursor:pointer}
+  .tbtn:hover{color:var(--text); border-color:var(--accent)}
+  .timermsg{font-size:.82rem; color:var(--amber); flex-basis:100%}
+  .splitbtn{background:transparent; border:1px dashed var(--amber); color:var(--amber); font:inherit; font-size:.78rem; padding:.3rem .7rem; border-radius:8px; cursor:pointer}
+  .splitbtn:hover{background:var(--amber-soft)}
+
+  .btn{background:var(--accent); color:var(--bg); border:none; font:inherit; font-weight:600; font-size:.9rem; padding:.5rem 1rem; border-radius:9px; cursor:pointer}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent; border:1px solid var(--border2); color:var(--muted); font-weight:500}
+  .btn.ghost:hover{color:var(--text)}
+  .bigbtn{display:block; width:100%; margin:1.4rem 0 .3rem; padding:.85rem; font-size:1rem; background:var(--good); color:#06110b; border:none; border-radius:11px; font-weight:700; cursor:pointer}
+  .bigbtn:hover{filter:brightness(1.06)}
+  .skiplink{display:inline-block; margin:.2rem 0 0; color:var(--muted); font-size:.82rem; background:none; border:none; cursor:pointer; text-decoration:underline}
+  .skiplink:hover{color:var(--text)}
+
+  /* split */
+  .splitwrap{display:none; margin-top:1rem; border:1px dashed var(--amber); border-radius:11px; padding:1rem; background:#181510}
+  .splitwrap.show{display:block}
+  .subround{border:1px solid var(--border2); border-radius:10px; padding:.9rem 1rem; margin:.7rem 0; background:var(--panel)}
+  .subround h4{margin:0 0 .3rem; font-size:.95rem; color:var(--amber)}
+
+  /* explain */
+  .explainwrap{display:none; margin-top:.6rem}
+  .explainwrap.show{display:block}
+  .exline{display:grid; grid-template-columns:1fr; gap:.15rem; padding:.5rem 0; border-bottom:1px solid var(--border)}
+  @media (min-width:620px){ .exline{grid-template-columns:minmax(0,44%) 1fr; gap:1rem} }
+  .exline code{white-space:pre-wrap; word-break:break-word}
+  .exline .mean{color:var(--muted)}
+  .dqbox{margin-top:1rem; border:1px solid var(--border2); border-radius:10px; padding:.8rem 1rem; background:var(--panel)}
+  .dqq{font-weight:600; margin-bottom:.5rem}
+  .dqq::before{content:"Q"; font-family:var(--mono); color:var(--accent); border:1.5px solid var(--accent); border-radius:5px; padding:0 .3rem; font-size:.78rem; margin-right:.5rem}
+  .dqa{display:none; margin-top:.6rem; padding-top:.5rem; border-top:1px solid var(--border); color:var(--text)}
+  .dqa.show{display:block}
+
+  .donerow{display:flex; align-items:flex-start; gap:.6rem; margin:1.4rem 0 .5rem; padding:.8rem 1rem; border:1px solid var(--border2); border-radius:10px; background:var(--panel)}
+  .donerow input{margin-top:.35rem; width:18px; height:18px; accent-color:var(--good)}
+  .donerow label{font-weight:600; cursor:pointer}
+  textarea.notes{width:100%; margin-top:.7rem; min-height:64px; resize:vertical; background:var(--code); color:var(--text); border:1px solid var(--border2); border-radius:9px; padding:.6rem .8rem; font:inherit; font-size:.92rem}
+  textarea.notes:focus{outline:2px solid var(--accent); outline-offset:0; border-color:var(--accent)}
+  .navbtns{display:flex; justify-content:space-between; gap:1rem; margin-top:1.6rem}
+
+  .content{padding:1.6rem clamp(1rem,4vw,2.6rem) 5rem; max-width:960px}
+  .content h2{font-size:clamp(1.3rem,3vw,1.7rem); margin:1.6rem 0 .3rem}
+  .content h2:first-child{margin-top:0}
+  .content p{max-width:70ch}
+  .tablewrap{overflow-x:auto; border:1px solid var(--border); border-radius:10px; margin:1rem 0}
+  table{border-collapse:collapse; width:100%; font-size:.9rem; min-width:560px}
+  th,td{text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--border); vertical-align:top}
+  th{background:var(--panel2); font-family:var(--mono); font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:nowrap}
+  .pill{font-family:var(--mono); font-size:.72rem; padding:.08rem .4rem; border-radius:99px; border:1px solid var(--border2)}
+  .pill.rt{color:var(--amber); border-color:var(--amber)}
+  .pill.ct{color:var(--accent); border-color:var(--accent)}
+  .pill.no{color:var(--bad); border-color:var(--bad)}
+  .pill.ok{color:var(--good); border-color:var(--good)}
+
+  .gterm{padding:.7rem 0; border-bottom:1px solid var(--border)}
+  .gterm dt{font-weight:700; color:var(--accent); font-family:var(--mono); font-size:.92rem}
+  .gterm dd{margin:.2rem 0 0}
+
+  details.qa{border:1px solid var(--border); border-radius:10px; margin:.55rem 0; background:var(--panel); overflow:hidden}
+  details.qa summary{cursor:pointer; padding:.8rem 1rem; font-weight:600; list-style:none; display:flex; gap:.6rem}
+  details.qa summary::-webkit-details-marker{display:none}
+  details.qa summary::before{content:"Q"; font-family:var(--mono); color:var(--accent); border:1.5px solid var(--accent); border-radius:5px; padding:0 .35rem; font-size:.8rem; align-self:center}
+  details.qa[open] summary{background:var(--panel2); border-bottom:1px solid var(--border)}
+  details.qa .a{padding:.8rem 1rem; color:var(--text)}
+  details.qa .a p{margin:.3rem 0}
+
+  .note-block{white-space:pre-wrap; background:var(--code); border:1px solid var(--border); border-radius:8px; padding:.6rem .8rem; margin:.4rem 0 1rem; font-family:var(--mono); font-size:.85rem; color:var(--muted)}
+  a{color:var(--accent)}
+</style>
+
+<div class="topbar">
+  <div class="brand"><span class="k">CPP06</span> · C++ casts <span class="sub">— guided, no solutions</span></div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-view="guide">Guide</button>
+    <button class="tab" data-view="cheat">Cheat sheet</button>
+    <button class="tab" data-view="glossary">Glossary</button>
+    <button class="tab" data-view="defense">Defense</button>
+    <button class="tab" data-view="progress">Progress</button>
+  </nav>
+  <span class="spacer"></span>
+  <div class="progwrap" title="Rounds done">
+    <div class="progbar"><div class="progfill" id="progfill"></div></div>
+    <span class="progtext" id="progtext">0%</span>
+  </div>
+  <button class="langbtn" id="langBtn" title="Show / hide Darija (Moroccan) under each part">&#127474;&#127462; Darija: OFF</button>
+  <button class="btn-reset" id="resetBtn">Reset progress</button>
+</div>
+
+<div class="views">
+  <section class="view active" id="view-guide">
+    <div class="guidewrap">
+      <aside class="sidebar" id="sidebar"></aside>
+      <main class="stepmain" id="stepMain"></main>
+    </div>
+  </section>
+
+  <section class="view" id="view-cheat">
+    <div class="content">
+      <h2>The 4 casts — one table</h2>
+      <p>Read this the last 5 minutes before your defense. A <strong>cast</strong> means changing a value from one type to another.</p>
+      <div class="dr">Had l page fih recap. Cast = tbdil value men type l type. static = 3adi, reinterpret = raw bits, const = const ghir, dynamic = maamon f run time.</div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Cast</th><th>Its one job</th><th>When</th><th>Safe?</th><th>Typical use here</th></tr></thead>
+        <tbody>
+          <tr><td><code>static_cast</code></td><td>Normal, sensible conversions (number↔number, char↔int, up a class family)</td><td><span class="pill ct">compile</span></td><td><span class="pill ok">fairly</span></td><td>ex00: turn the value into char/int/float/double</td></tr>
+          <tr><td><code>reinterpret_cast</code></td><td>Read the same bits as a totally different type (pointer↔integer)</td><td><span class="pill ct">compile</span></td><td><span class="pill no">no</span></td><td>ex01: pointer ↔ <code>uintptr_t</code></td></tr>
+          <tr><td><code>const_cast</code></td><td>Only add or remove <code>const</code></td><td><span class="pill ct">compile</span></td><td><span class="pill no">smell</span></td><td>Not needed in this module</td></tr>
+          <tr><td><code>dynamic_cast</code></td><td>Safe down-cast in a class family, asks "what is the real type?"</td><td><span class="pill rt">run</span></td><td><span class="pill ok">yes</span></td><td>ex02: find real type A/B/C</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Key answer per exercise (say this out loud)</h2>
+      <div class="dr">ex00: static_cast (conversions 3adiyin). ex01: reinterpret_cast (pointer &lt;-&gt; integer). ex02: dynamic_cast (type l7aqiqi f run time; pointer -&gt; NULL, reference -&gt; throw).</div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Exercise</th><th>Main idea</th><th>Cast &amp; why</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ex00</strong> ScalarConverter</td><td>Detect the literal type from a string, then show it as char, int, float, double</td><td><code>static_cast</code> — these are normal number/char conversions</td></tr>
+          <tr><td><strong>ex01</strong> Serializer</td><td>Turn a pointer into a number and back</td><td><code>reinterpret_cast</code> — only it can move bits between pointer and integer; <code>static_cast</code> cannot</td></tr>
+          <tr><td><strong>ex02</strong> Identify real type</td><td>Find if a <code>Base*</code> really points to A, B, or C, without <code>&lt;typeinfo&gt;</code></td><td><code>dynamic_cast</code> — checked at run time; pointer version returns <code>NULL</code> on fail, reference version throws <code>std::bad_cast</code></td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Why not the old C cast <code>(type)x</code>?</h2>
+      <p>The C cast can silently do <em>any</em> of the four jobs — even a dangerous one — and you cannot see which. The named casts say exactly what you mean, are easy to search for, and the compiler can refuse a wrong one.</p>
+      <div class="dr">C cast (type)x y9der ydir ay 7aja f sket. Named casts kaybayno ash bghiti o compiler y9der yerfed l ghalt.</div>
+    </div>
+  </section>
+
+  <section class="view" id="view-glossary"><div class="content" id="glossaryBody"></div></section>
+  <section class="view" id="view-defense"><div class="content" id="defenseBody"></div></section>
+  <section class="view" id="view-progress"><div class="content" id="progressBody"></div></section>
+</div>
+
+<script>
+/* =========================================================================
+   CPP06 guided page — ROUND METHOD.
+   Small rounds. You write the graded lines; the page writes the boilerplate.
+   Explanation is hidden until you press "It works — explain it to me".
+   No blocking locks. This page never contains the solution of your casts.
+   ========================================================================= */
+
+/* ---------------- helpers ---------------- */
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function dr(t){ return t ? '<div class="dr">'+esc(t)+'</div>' : ''; }
+function drPre(t){ return t ? '<div class="dr"><pre>'+esc(t)+'</pre></div>' : ''; }
+function drUl(arr){ if(!arr||!arr.length) return ''; var h='<div class="dr"><ul class="tight">'; for(var i=0;i<arr.length;i++) h+='<li>'+esc(arr[i])+'</li>'; return h+'</ul></div>'; }
+
+var cbSeq=0;
+function codeBlock(name, code){
+  var id="cb"+(cbSeq++);
+  return '<div class="cblock"><div class="cbhead"><span class="cbname">'+esc(name)+'</span>'+
+         '<button class="copybtn" data-target="'+id+'">Copy</button></div>'+
+         '<pre id="'+id+'"><code>'+esc(code)+'</code></pre></div>';
+}
+
+/* ---------------- ROUNDS (content added below) ---------------- */
+var ROUNDS = [];
+/* ROUNDS_INSERT */
+
+/* ================= ex01 · Serializer ================= */
+ROUNDS.push({
+  id:"ex01-r1", ex:"ex01", exLabel:"ex01 · Serializer", n:1, of:1,
+  title:"Make it round-trip",
+  goal:"make builds, and ./serializer prints OK: the pointer came back equal.",
+  skeleton:[
+    {name:"ex01/Makefile  (recipe lines start with a real TAB)", code:
+"NAME     = serializer\nCXX      = c++\nCXXFLAGS = -Wall -Wextra -Werror -std=c++98\nSRCS     = main.cpp Serializer.cpp\nOBJS     = $(SRCS:.cpp=.o)\n\nall: $(NAME)\n\n$(NAME): $(OBJS)\n\t$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)\n\n%.o: %.cpp\n\t$(CXX) $(CXXFLAGS) -c $< -o $@\n\nclean:\n\trm -f $(OBJS)\n\nfclean: clean\n\trm -f $(NAME)\n\nre: fclean all\n\n.PHONY: all clean fclean re\n"},
+    {name:"ex01/Data.hpp", code:
+"#ifndef DATA_HPP\n#define DATA_HPP\n\n#include <string>\n\n// A simple non-empty structure (it has data members).\nstruct Data\n{\n    int         id;\n    std::string name;\n};\n\n#endif\n"},
+    {name:"ex01/Serializer.hpp", code:
+"#ifndef SERIALIZER_HPP\n#define SERIALIZER_HPP\n\n#include <stdint.h>   // uintptr_t (in C++98 it comes from this C header)\n#include \"Data.hpp\"\n\nclass Serializer\n{\n    private:\n        // Private OCF => nobody can create a Serializer object.\n        Serializer();\n        Serializer(const Serializer& other);\n        Serializer& operator=(const Serializer& other);\n        ~Serializer();\n\n    public:\n        static uintptr_t serialize(Data* ptr);\n        static Data*      deserialize(uintptr_t raw);\n};\n\n#endif\n"},
+    {name:"ex01/Serializer.cpp", code:
+"#include \"Serializer.hpp\"\n\n// --- boring boilerplate (I wrote this) ---\nSerializer::Serializer() {}\nSerializer::Serializer(const Serializer& other) { (void)other; }\nSerializer& Serializer::operator=(const Serializer& other) { (void)other; return *this; }\nSerializer::~Serializer() {}\n\n// --- YOUR graded lines go inside the two bodies below ---\nuintptr_t Serializer::serialize(Data* ptr)\n{\n    // TODO — you write this: return ptr turned into a uintptr_t\n}\n\nData* Serializer::deserialize(uintptr_t raw)\n{\n    // TODO — you write this: return raw turned back into a Data*\n}\n"},
+    {name:"ex01/main.cpp  (complete — do not touch)", code:
+"#include \"Serializer.hpp\"\n#include <iostream>\n\nint main()\n{\n    Data  original;\n    original.id   = 42;\n    original.name = \"Bender\";\n\n    Data* before = &original;\n\n    uintptr_t raw   = Serializer::serialize(before);\n    Data*     after = Serializer::deserialize(raw);\n\n    std::cout << \"before : \" << before << std::endl;\n    std::cout << \"raw    : \" << raw << std::endl;\n    std::cout << \"after  : \" << after << std::endl;\n\n    if (after == before)\n        std::cout << \"OK: same pointer, id=\" << after->id\n                  << \" name=\" << after->name << std::endl;\n    else\n        std::cout << \"KO: pointers are different\" << std::endl;\n    return 0;\n}\n"}
+  ],
+  your:{
+    where:"ex01/Serializer.cpp — serialize() and deserialize()",
+    size:"2 lines (1 each)",
+    what:"Fill the two <code>// TODO</code> bodies. In <b>serialize</b>: one <code>return</code> line that gives back <code>ptr</code> as a <code>uintptr_t</code>. In <b>deserialize</b>: one <code>return</code> line that gives back <code>raw</code> as a <code>Data*</code>. Use the cast that moves <b>raw bits</b> between a pointer and an integer (the <em>reinterpret</em> one). <code>static_cast</code> will not compile here — that is the whole point.",
+    hints:[
+      "Which of the 4 casts is the ONLY one allowed to move bits between a pointer and an integer?",
+      "reinterpret_cast reads the same bits as a different type. serialize goes pointer -> uintptr_t; deserialize goes uintptr_t -> Data*.",
+      "Shape (not real code):\nserialize:   return reinterpret_cast< the-integer-type >( the-pointer );\ndeserialize: return reinterpret_cast< the-pointer-type >( the-number );"
+    ]
+  },
+  run:{
+    cmd:"cd ex01\nmake\n./serializer",
+    expect:"before : 0x7ffd...\nraw    : 140725...\nafter  : 0x7ffd...\nOK: same pointer, id=42 name=Bender",
+    mism:[
+      "Compiler says 'invalid cast'? Did you use static_cast by mistake instead of reinterpret_cast?",
+      "Prints KO / different pointers? Are BOTH lines using reinterpret_cast, and does deserialize return a Data*?",
+      "'uintptr_t was not declared'? Did you keep #include <stdint.h> in the header?"
+    ]
+  },
+  explain:{
+    lines:[
+      ["reinterpret_cast<uintptr_t>(ptr)","take the pointer's bits, call them a number big enough to hold an address"],
+      ["reinterpret_cast<Data*>(raw)","take the same bits back, call them a Data pointer again"],
+      ["private OCF + static methods","no Serializer object is ever created; you call it as Serializer::serialize(...)"],
+      ["after == before","the bits never changed, so the address is identical — same object"]
+    ],
+    concept:"A pointer is just a number: the address of an object. <code>reinterpret_cast</code> computes nothing — it only re-labels the same bits as a different type. So the round-trip is exact: pointer → number → pointer gives back the very same address. <code>static_cast</code> refuses this because a pointer and an integer are not related types.",
+    dq:"Why reinterpret_cast here and not static_cast?",
+    da:"Because a pointer and an integer are not related types. Only reinterpret_cast can move the raw bits between them. static_cast would be refused by the compiler."
+  },
+  split:[
+    { title:"Split 1/2 — serialize only",
+      goal:"It compiles and runs (it will print KO for now — that's fine).",
+      skelNote:"In <code>deserialize</code>, temporarily put <code>return NULL;</code> — I allow this placeholder, it is not a graded line.",
+      your:{ where:"Serializer.cpp — serialize()", size:"1 line", what:"Write only serialize: return the pointer as a <code>uintptr_t</code> with the reinterpret cast." },
+      run:{ cmd:"make && ./serializer", expect:"KO: pointers are different" },
+      drGoal:"Kaytbna o kaykhdem (ghadi ytba3 KO daba, machkil).",
+      drWhat:"Kteb ghir serialize: return l pointer b7al uintptr_t b reinterpret cast." },
+    { title:"Split 2/2 — deserialize",
+      goal:"Now it prints OK.",
+      your:{ where:"Serializer.cpp — deserialize()", size:"1 line", what:"Replace the temporary <code>return NULL;</code> with: return <code>raw</code> as a <code>Data*</code> using the reinterpret cast." },
+      run:{ cmd:"make && ./serializer", expect:"OK: same pointer, id=42 name=Bender" },
+      drGoal:"Daba kaytba3 OK.",
+      drWhat:"Bdel return NULL b: return raw b7al Data* b reinterpret cast." }
+  ],
+  dr:{
+    goal:"make kaybni, o ./serializer kaytba3 OK: l pointer rje3 kif kif.",
+    what:"3mmer juj TODO. F serialize: return line wahed, l ptr mbeddel l uintptr_t. F deserialize: return line wahed, raw mbeddel l Data*. St3mel l cast li kaynqel raw bits bin pointer o integer (reinterpret). static_cast MA ghadich ykhdem hna - hada howa l ghard.",
+    hints:[
+      "Ashmen cast howa l WA7ID li msmo7 lih ynqel bits bin pointer o integer?",
+      "reinterpret_cast kayqra nafs l bits b7al type akhor. serialize: pointer -> uintptr_t; deserialize: uintptr_t -> Data*.",
+      "Shape (machi code):\nserialize:   return reinterpret_cast< integer-type >( pointer );\ndeserialize: return reinterpret_cast< pointer-type >( raqm );"
+    ],
+    mism:[
+      "Compiler kayqol 'invalid cast'? Wach st3melti static_cast b l ghalt f blast reinterpret_cast?",
+      "Kaytba3 KO? Wach juj lines kayst3mlo reinterpret_cast, o deserialize kayrjje3 Data*?",
+      "'uintptr_t was not declared'? Wach khelliti #include <stdint.h> f l header?"
+    ],
+    concept:"Pointer howa ghir raqm: l adresse d object. reinterpret_cast ma kay7seb walo, ghir kay-re-label nafs l bits b7al type akhor. 3la hadshi round-trip m2ekked: pointer -> raqm -> pointer kayrjje3 nafs l adresse. static_cast kayrfed hadshi 7it pointer o integer machi types qrab.",
+    da:"7it pointer o integer machi types qrab. Ghir reinterpret_cast y9der ynqel l raw bits. static_cast ghadi yrefdo compiler."
+  }
+});
+
+/* ================= ex02 · Identify ================= */
+ROUNDS.push({
+  id:"ex02-r1", ex:"ex02", exLabel:"ex02 · Identify", n:1, of:3,
+  title:"Make a random object",
+  goal:"./identify runs, makes a random A/B/C, no crash and no leak.",
+  skeleton:[
+    {name:"ex02/Makefile  (recipe lines start with a real TAB)", code:
+"NAME     = identify\nCXX      = c++\nCXXFLAGS = -Wall -Wextra -Werror -std=c++98\nSRCS     = main.cpp Base.cpp funcs.cpp\nOBJS     = $(SRCS:.cpp=.o)\n\nall: $(NAME)\n\n$(NAME): $(OBJS)\n\t$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)\n\n%.o: %.cpp\n\t$(CXX) $(CXXFLAGS) -c $< -o $@\n\nclean:\n\trm -f $(OBJS)\n\nfclean: clean\n\trm -f $(NAME)\n\nre: fclean all\n\n.PHONY: all clean fclean re\n"},
+    {name:"ex02/Base.hpp", code:
+"#ifndef BASE_HPP\n#define BASE_HPP\n\nclass Base\n{\n    public:\n        virtual ~Base();\n};\n\nclass A : public Base {};\nclass B : public Base {};\nclass C : public Base {};\n\n#endif\n"},
+    {name:"ex02/Base.cpp", code:
+"#include \"Base.hpp\"\n\nBase::~Base() {}\n"},
+    {name:"ex02/funcs.hpp", code:
+"#ifndef FUNCS_HPP\n#define FUNCS_HPP\n\n#include \"Base.hpp\"\n\nBase* generate();\n// identify() will be added in the next rounds\n\n#endif\n"},
+    {name:"ex02/funcs.cpp", code:
+"#include \"funcs.hpp\"\n#include <cstdlib>\n\nBase* generate()\n{\n    // TODO — you write this:\n    // pick 0, 1 or 2 at random, then return new A / new B / new C\n}\n"},
+    {name:"ex02/main.cpp  (complete — do not touch)", code:
+"#include \"Base.hpp\"\n#include \"funcs.hpp\"\n#include <iostream>\n#include <cstdlib>\n#include <ctime>\n\nint main()\n{\n    std::srand(std::time(0));       // seed the random generator once\n\n    Base* p = generate();           // YOUR generate() makes a random A/B/C\n    std::cout << \"made a random object\" << std::endl;\n    delete p;                       // give the memory back (no leak)\n    return 0;\n}\n"}
+  ],
+  your:{
+    where:"ex02/funcs.cpp — generate()",
+    size:"~4 lines",
+    what:"Pick a random number 0, 1 or 2 with <code>rand() % 3</code>. Return <code>new A</code>, <code>new B</code>, or <code>new C</code> to match. The return type is <code>Base*</code> — an A <em>is a</em> Base, so that is allowed (this is an upcast, always safe).",
+    hints:[
+      "How do you turn rand() into exactly one of three choices?",
+      "rand() % 3 gives 0, 1, or 2. Map each number to new A / new B / new C.",
+      "Shape:\nint r = rand() % 3;\nif r==0 -> return new A;\nif r==1 -> return new B;\nreturn new C;"
+    ]
+  },
+  run:{
+    cmd:"cd ex02\nmake\n./identify",
+    expect:"made a random object",
+    mism:[
+      "Link error 'undefined reference to generate'? Is funcs.cpp listed in the Makefile SRCS?",
+      "Crash or nothing? Does every path in generate return a new object (all three cases)?",
+      "Warning about time/rand? Keep #include <cstdlib> and <ctime> in main."
+    ]
+  },
+  explain:{
+    lines:[
+      ["virtual ~Base()","the base destructor is virtual, so delete p also destroys the real child part"],
+      ["new A / new B / new C","make the object on the heap; you get back a Base* (an A is a Base)"],
+      ["delete p (in main)","give the heap memory back — no leak"]
+    ],
+    concept:"<code>generate()</code> builds one of the three real types at random and hands it back as a <code>Base*</code> — an <b>upcast</b>, always safe. <code>new</code> puts it on the heap, so main must <code>delete</code> it. The <b>virtual</b> destructor makes that delete clean up the real child object, not only the Base part.",
+    dq:"Why is the Base destructor virtual?",
+    da:"So deleting a child through a Base* runs the child destructor too (no leak, no undefined behavior), and it makes the class polymorphic, which dynamic_cast needs in the next rounds."
+  },
+  dr:{
+    goal:"./identify kaykhdem, kaydir A/B/C b hasard, bla crash o bla leak.",
+    what:"Khtar raqm 0, 1 wla 2 b rand() % 3. Return new A / new B / new C 7sab l raqm. Return type howa Base* - A hiya Base, donc msmo7 (upcast, dima maamon).",
+    hints:[
+      "Kifash tjib wahed men 3 khtiyarat men rand()?",
+      "rand() % 3 kay3ti 0,1,2. Rbet kul raqm m3a new A / new B / new C.",
+      "Shape:\nint r = rand() % 3;\nila r==0 -> return new A;\nila r==1 -> return new B;\nreturn new C;"
+    ],
+    mism:[
+      "Link error 'undefined reference to generate'? Wach funcs.cpp kayn f SRCS d Makefile?",
+      "Crash wla walo? Wach kul 7ala f generate katrjje3 object jdid (l 3 cases)?",
+      "Warning 3la time/rand? Khelli #include <cstdlib> o <ctime> f main."
+    ],
+    concept:"generate() kaydir wahed men 3 types b hasard o kayrjje3o b7al Base* (upcast, dima maamon). new kay7etto f heap, donc main khasso ydir delete. Virtual destructor kaykhelli delete ynaddef l object l weld kamel, machi ghir l part d Base.",
+    da:"Bash delete l weld 3bar Base* y3awed destructor d l weld (bla leak wla UB), o bash l classe tkon polymorphic li dynamic_cast m7tajha f rounds jayin."
+  }
+});
+
+ROUNDS.push({
+  id:"ex02-r2", ex:"ex02", exLabel:"ex02 · Identify", n:2, of:3,
+  title:"Name the type — with a pointer",
+  goal:"./identify prints the real letter: A, B, or C.",
+  skelNote:"Only 3 small additions to files you already have. Do not rewrite generate().",
+  skeleton:[
+    {name:"funcs.hpp — add this line (before #endif)", code:
+"void identify(Base* p);\n"},
+    {name:"funcs.cpp — add this function", code:
+"#include <iostream>\n\nvoid identify(Base* p)\n{\n    // TODO — you write this:\n    // try dynamic_cast to A*, then B*, then C*.\n    // the one that is NOT NULL is the real type — print its letter.\n}\n"},
+    {name:"main.cpp — add after generate(), before delete p", code:
+"    std::cout << \"pointer says: \";\n    identify(p);\n"}
+  ],
+  your:{
+    where:"ex02/funcs.cpp — identify(Base* p)",
+    size:"~5 lines",
+    what:"Find the real type WITHOUT <code>&lt;typeinfo&gt;</code>. Try <code>dynamic_cast</code> to <code>A*</code>: if it is not <code>NULL</code>, print A. Else try <code>B*</code>, else <code>C*</code>. On a <b>pointer</b>, a wrong dynamic_cast returns <code>NULL</code>.",
+    hints:[
+      "When dynamic_cast to a pointer fails, what value do you get back?",
+      "A failed pointer dynamic_cast is NULL; a success is a usable pointer. Try A*, then B*, then C*.",
+      "Shape:\nif dynamic_cast to A* is not NULL -> print A\nelse if to B* not NULL -> print B\nelse -> print C"
+    ]
+  },
+  run:{
+    cmd:"make && ./identify",
+    expect:"made a random object\npointer says: B\n(the letter changes each run — A, B or C)",
+    mism:[
+      "Always prints C? Are you checking A* and B* first, and comparing with != NULL correctly?",
+      "'typeinfo' error, or did you include <typeinfo>? Remove it — dynamic_cast does not need it here.",
+      "No letter at all? Did you actually print inside each branch?"
+    ]
+  },
+  explain:{
+    lines:[
+      ["dynamic_cast<A*>(p)","asks at run time: is the real object an A? yes → a real pointer, no → NULL"],
+      ["!= NULL","the check that tells you the guess was right"],
+      ["no <typeinfo>","dynamic_cast alone is enough; RTTI is already on because Base has a virtual function"]
+    ],
+    concept:"<code>dynamic_cast</code> down a class family is checked at <b>run time</b> using RTTI. On a pointer it returns <code>NULL</code> when the object is not that type, so you try each type until one is not NULL. This works only because Base has a virtual function (the destructor).",
+    dq:"What does dynamic_cast return on a pointer when it fails?",
+    da:"NULL. On a reference it would instead throw std::bad_cast."
+  },
+  dr:{
+    goal:"./identify kaytba3 l 7arf l7aqiqi: A, B, wla C.",
+    what:"Lqa l type l7aqiqi BLA <typeinfo>. Jerreb dynamic_cast l A*: ila machi NULL, tba3 A. Sinon B*, sinon C*. 3la pointer, dynamic_cast ghalet kayrjje3 NULL.",
+    hints:[
+      "Mnin dynamic_cast l pointer kayfshel, ashmen value kayrjje3?",
+      "dynamic_cast l pointer li fshel = NULL; li nje7 = pointer saleh. Jerreb A*, B*, C*.",
+      "Shape:\nila dynamic_cast l A* machi NULL -> tba3 A\nsinon ila l B* machi NULL -> tba3 B\nsinon -> tba3 C"
+    ],
+    mism:[
+      "Dima kaytba3 C? Wach kat-checki A* o B* l-lowwel, o kat-compari b != NULL?",
+      "Error d 'typeinfo' wla dexlti <typeinfo>? 7aydo - dynamic_cast ma m7tajoch hna.",
+      "Ta 7arf ma kaytba3? Wach f se7 katba3 dakhel kul branch?"
+    ],
+    concept:"dynamic_cast f l 3a'ila kayt-check f run time b RTTI. 3la pointer kayrjje3 NULL mnin l object machi dak type, donc jerreb kul type 7ta wahed machi NULL. Kaykhdem ghir 7it Base 3ndha fonction virtual (destructor).",
+    da:"NULL. 3la reference kaytiye7 std::bad_cast 3wad."
+  }
+});
+
+ROUNDS.push({
+  id:"ex02-r3", ex:"ex02", exLabel:"ex02 · Identify", n:3, of:3,
+  title:"Name the type — with a reference",
+  goal:"./identify prints the letter again, with no pointer inside the function.",
+  skelNote:"Two small additions. The reference version must not use a pointer inside.",
+  skeleton:[
+    {name:"funcs.hpp — add this line", code:
+"void identify(Base& p);\n"},
+    {name:"funcs.cpp — add this function", code:
+"#include <exception>   // std::exception (avoids the forbidden <typeinfo>)\n\nvoid identify(Base& p)\n{\n    // TODO — you write this:\n    // dynamic_cast to A& inside a try; on the wrong type it THROWS.\n    // catch std::exception&, then try B&, then C&.\n    (void)p;\n}\n"},
+    {name:"main.cpp — add after the pointer identify", code:
+"    std::cout << \"reference says: \";\n    identify(*p);\n"}
+  ],
+  your:{
+    where:"ex02/funcs.cpp — identify(Base& p)",
+    size:"~6 lines (feels big? press \"Too big — split it\")",
+    what:"No pointers inside. Use <code>dynamic_cast</code> to a <b>reference</b> (<code>A&amp;</code>) inside a <code>try</code>. If it works, print A. A wrong reference cast <b>throws</b>, so <code>catch (std::exception&amp;)</code> and try <code>B&amp;</code>, then <code>C&amp;</code>. Do NOT include <code>&lt;typeinfo&gt;</code> — catching <code>std::exception</code> still catches the bad_cast.",
+    hints:[
+      "A reference can never be NULL — so what does dynamic_cast do instead when the type is wrong?",
+      "It throws. Catch std::exception& (not std::bad_cast, to avoid <typeinfo>). Try A&, on catch try B&, on catch print C.",
+      "Shape:\ntry { dynamic_cast to A&; print A; }\ncatch(std::exception&) {\n  try { dynamic_cast to B&; print B; }\n  catch(std::exception&) { print C; } }"
+    ]
+  },
+  run:{
+    cmd:"make && ./identify",
+    expect:"made a random object\npointer says: B\nreference says: B\n(both lines must show the SAME letter)",
+    mism:[
+      "Compile error about std::bad_cast / <typeinfo>? Catch std::exception& instead, and #include <exception>.",
+      "Always prints C? Is the success branch before the catch, and are you using A& (reference), not A*?",
+      "The two lines disagree? Both must read the same object — main passes p then *p."
+    ]
+  },
+  explain:{
+    lines:[
+      ["dynamic_cast<A&>(p)","reference version: on the wrong type it throws instead of returning NULL"],
+      ["catch (std::exception&)","bad_cast is a std::exception, so this catches it without including <typeinfo>"],
+      ["identify(*p) in main","*p turns the Base* into a Base& to call this version"]
+    ],
+    concept:"A reference always names a real object, so <code>dynamic_cast</code> cannot return NULL — it <b>throws</b> <code>std::bad_cast</code> on a wrong type. You wrap each attempt in <code>try/catch</code>. Catching <code>std::exception</code> (the parent) lets you avoid the forbidden <code>&lt;typeinfo&gt;</code> header while still catching the throw.",
+    dq:"Why does the reference dynamic_cast throw instead of returning NULL?",
+    da:"Because a reference can never be null — there is no 'NULL reference' to hand back, so the language signals failure by throwing std::bad_cast."
+  },
+  split:[
+    { title:"Split 1/2 — just A vs not-A",
+      goal:"Prints A when it is an A, and 'not A' otherwise.",
+      your:{ where:"funcs.cpp — identify(Base&)", size:"~4 lines", what:"One <code>try</code>: dynamic_cast to <code>A&amp;</code>, print A. One <code>catch(std::exception&amp;)</code>: print 'not A'." },
+      run:{ cmd:"make && ./identify", expect:"reference says: A   (or)   not A" },
+      drGoal:"Kaytba3 A ila kanet A, o 'not A' ila la.",
+      drWhat:"try wahed: dynamic_cast l A&, tba3 A. catch(std::exception&): tba3 'not A'." },
+    { title:"Split 2/2 — add B and C",
+      goal:"Full A / B / C.",
+      your:{ where:"same function", size:"+3 lines", what:"Inside the catch, nest another <code>try</code> for <code>B&amp;</code>, and in its catch print C." },
+      run:{ cmd:"make && ./identify", expect:"reference says: A | B | C" },
+      drGoal:"A / B / C kamlin.",
+      drWhat:"Dakhel l catch, dir try akhor l B&, o f catch dyalo tba3 C." }
+  ],
+  dr:{
+    goal:"./identify kaytba3 l 7arf men jdid, bla pointer dakhel l fonction.",
+    what:"Bla pointers dakhel. St3mel dynamic_cast l reference (A&) dakhel try. Ila khdmat, tba3 A. Cast d reference ghalet kaytiye7, donc catch(std::exception&) o jerreb B&, mn b3d C&. MA dexxelch <typeinfo> - catch d std::exception kayqbet l bad_cast.",
+    hints:[
+      "Reference 3emmerha NULL - donc ash kaydir dynamic_cast mnin type ghalet?",
+      "Kaytiye7. Qbet std::exception& (machi std::bad_cast, bash tb3ed 3la <typeinfo>). Jerreb A&, f catch jerreb B&, f catch tba3 C.",
+      "Shape:\ntry { dynamic_cast l A&; tba3 A; }\ncatch(std::exception&) {\n  try { dynamic_cast l B&; tba3 B; }\n  catch(std::exception&) { tba3 C; } }"
+    ],
+    mism:[
+      "Error 3la std::bad_cast / <typeinfo>? Qbet std::exception& o #include <exception>.",
+      "Dima C? Wach branch d naja7 qbel l catch, o kat-st3mel A& (reference) machi A*?",
+      "Juj lines mkhtalfin? Bjuj khasshom yqraw nafs object - main kay3ti p mn b3d *p."
+    ],
+    concept:"Reference dima katsemmi object 7aqiqi, donc dynamic_cast ma y9derch yrjje3 NULL - kaytiye7 std::bad_cast 3la type ghalet. Kat-leff kul mo7awala f try/catch. Qbet std::exception (l parent) kaykhellik tb3ed 3la <typeinfo> l mamno3, o mazal katqbet l throw.",
+    da:"7it reference 3emmerha ma tkon null - makayn 'NULL reference' bash yrjje3, donc l language kaysignali l fashal b throw d std::bad_cast."
+  }
+});
+
+/* ================= ex00 · ScalarConverter ================= */
+ROUNDS.push({
+  id:"ex00-r1", ex:"ex00", exLabel:"ex00 · ScalarConverter", n:1, of:7,
+  title:"Set up + detect the type",
+  goal:"./convert 4.2f prints the detected type (a temporary print, just to see it work).",
+  skeleton:[
+    {name:"ex00/Makefile  (recipe lines start with a real TAB)", code:
+"NAME     = convert\nCXX      = c++\nCXXFLAGS = -Wall -Wextra -Werror -std=c++98\nSRCS     = main.cpp ScalarConverter.cpp\nOBJS     = $(SRCS:.cpp=.o)\n\nall: $(NAME)\n\n$(NAME): $(OBJS)\n\t$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)\n\n%.o: %.cpp\n\t$(CXX) $(CXXFLAGS) -c $< -o $@\n\nclean:\n\trm -f $(OBJS)\n\nfclean: clean\n\trm -f $(NAME)\n\nre: fclean all\n\n.PHONY: all clean fclean re\n"},
+    {name:"ex00/ScalarConverter.hpp", code:
+"#ifndef SCALARCONVERTER_HPP\n#define SCALARCONVERTER_HPP\n\n#include <string>\n\nclass ScalarConverter\n{\n    private:\n        ScalarConverter();\n        ScalarConverter(const ScalarConverter& other);\n        ScalarConverter& operator=(const ScalarConverter& other);\n        ~ScalarConverter();\n\n    public:\n        static void convert(const std::string& literal);\n};\n\n#endif\n"},
+    {name:"ex00/ScalarConverter.cpp", code:
+"#include \"ScalarConverter.hpp\"\n#include <iostream>\n\n// --- boring boilerplate (I wrote this) ---\nScalarConverter::ScalarConverter() {}\nScalarConverter::ScalarConverter(const ScalarConverter& other) { (void)other; }\nScalarConverter& ScalarConverter::operator=(const ScalarConverter& other) { (void)other; return *this; }\nScalarConverter::~ScalarConverter() {}\n\n// --- YOUR graded logic goes here ---\nvoid ScalarConverter::convert(const std::string& literal)\n{\n    // TODO — you write this (round 1):\n    // look at the shape of `literal` and print its type:\n    // \"char\" / \"int\" / \"float\" / \"double\"\n    (void)literal;\n}\n"},
+    {name:"ex00/main.cpp  (complete — do not touch)", code:
+"#include \"ScalarConverter.hpp\"\n#include <iostream>\n\nint main(int argc, char** argv)\n{\n    if (argc != 2)\n    {\n        std::cout << \"usage: ./convert <literal>\" << std::endl;\n        return 1;\n    }\n    ScalarConverter::convert(argv[1]);\n    return 0;\n}\n"}
+  ],
+  your:{
+    where:"ex00/ScalarConverter.cpp — convert()",
+    size:"~5 lines",
+    what:"Detect which of the 4 types the string is, and for now just print the type name. Clues: length 1 and not a digit → <b>char</b>; has a dot and ends with <code>f</code> → <b>float</b>; has a dot → <b>double</b>; else → <b>int</b>.",
+    hints:[
+      "What single character tells a float apart from a double? What tells a char apart from a one-digit number?",
+      "Trailing f → float. A dot → floating. Length 1 and not a digit → char. Otherwise int.",
+      "Shape:\nif len==1 and not a digit -> print CHAR\nelse if has '.' and last char=='f' -> print FLOAT\nelse if has '.' -> print DOUBLE\nelse -> print INT"
+    ]
+  },
+  run:{
+    cmd:"cd ex00\nmake\n./convert 4.2f\n./convert a\n./convert -42",
+    expect:"float\nchar\nint",
+    mism:[
+      "Everything says int? Are you checking the dot and the trailing f BEFORE the int fallback?",
+      "'a' says int? Put the char check (length 1 and not a digit) first.",
+      "Segfault when you run ./convert with no argument? main already checks argc == 2 — rebuild with make."
+    ]
+  },
+  explain:{
+    lines:[
+      ["private OCF","the 4 canonical functions are private, so nobody can make a ScalarConverter"],
+      ["static convert","called as ScalarConverter::convert(argv[1]); no object is needed"],
+      ["detect by shape","you read the text's shape (dot, trailing f, length) to guess the type"]
+    ],
+    concept:"You cannot know a string's meaning without looking at its <b>shape</b>. A dot means floating; a trailing <code>f</code> narrows it to float; a lone non-digit is a char; otherwise it is an int. Getting detection right first makes every later round easy. The class stores no data, so its constructors are private and everything is static.",
+    dq:"How did you stop anyone from creating a ScalarConverter object?",
+    da:"I put the whole canonical form (constructors, operator=, destructor) under private, so there is no public constructor and the class cannot be instantiated."
+  },
+  split:[
+    { title:"Split 1/2 — char vs number",
+      goal:"Print CHAR for a single letter, NUMBER for anything else.",
+      your:{ where:"convert()", size:"~2 lines", what:"If length is 1 and the character is not a digit, print char. Otherwise print 'number' for now." },
+      run:{ cmd:"make && ./convert a && ./convert 42", expect:"char\nnumber" },
+      drGoal:"Tba3 CHAR l 7arf wahed, NUMBER l ay 7aja okhra.",
+      drWhat:"Ila tol==1 o machi digit, tba3 char. Sinon tba3 'number' daba." },
+    { title:"Split 2/2 — split the numbers",
+      goal:"Now split number into int / float / double.",
+      your:{ where:"convert()", size:"~3 lines", what:"In the 'number' branch: dot and ends with f → float; dot only → double; else int." },
+      run:{ cmd:"make && ./convert 4.2f && ./convert 4.2 && ./convert -42", expect:"float\ndouble\nint" },
+      drGoal:"Daba qsem number l int / float / double.",
+      drWhat:"F branch d 'number': point o kaysali b f -> float; point ghir -> double; sinon int." }
+  ],
+  dr:{
+    goal:"./convert 4.2f kaytba3 l type li detecti (print mo2aqqat bash tshof kaykhdem).",
+    what:"Detecti ashmen men 4 types howa l string, o daba ghir tba3 smit l type. Indices: tol 1 o machi raqm -> char; point o kaysali b f -> float; point -> double; sinon int.",
+    hints:[
+      "Ashmen 7arf wahed kayfarraq float 3la double? Ashmen 7aja katfarraq char 3la raqm b 7arf wahed?",
+      "'f' f l-akher -> float. Point -> floating. Tol 1 o machi raqm -> char. Sinon int.",
+      "Shape:\nila len==1 o machi raqm -> tba3 CHAR\nsinon ila fih '.' o l-akher=='f' -> tba3 FLOAT\nsinon ila fih '.' -> tba3 DOUBLE\nsinon -> tba3 INT"
+    ],
+    mism:[
+      "Kolshi kaytba3 int? Wach kat-checki l point o l 'f' QBEL l int?",
+      "'a' kaytba3 int? 7et l check d char (tol 1 o machi raqm) l-lowwel.",
+      "Segfault bla argument? main deja kay-checki argc==2 - 3awed make."
+    ],
+    concept:"Ma t9derch t3ref l ma3na d string bla ma tshof l shakl dyalo. Point = floating; 'f' f l-akher = float; 7arf wahed machi raqm = char; sinon int. Detection s7i7a l-lowwel katsahhel kolshi. L classe ma katkhzen walo, donc constructors private o kolshi static.",
+    da:"7etit ga3 l canonical form (constructors, operator=, destructor) f private, donc makayn public constructor o l classe ma t9derch ttebna."
+  }
+});
+
+ROUNDS.push({
+  id:"ex00-r2", ex:"ex00", exLabel:"ex00 · ScalarConverter", n:2, of:7,
+  title:"Handle nan and inf",
+  goal:"./convert nan and ./convert -inff are detected as the double / float specials.",
+  skelNote:"No new files — work in the same detect logic, before the normal checks.",
+  your:{
+    where:"ex00/ScalarConverter.cpp — top of convert()",
+    size:"~4 lines",
+    what:"Before normal detection, compare the whole string to the 6 exact tokens: <code>nanf</code>, <code>+inff</code>, <code>-inff</code> (float specials) and <code>nan</code>, <code>+inf</code>, <code>-inf</code> (double specials). Mark them so later char/int become <b>impossible</b> and float/double print <code>nanf</code>/<code>nan</code>.",
+    hints:[
+      "How do you compare the whole input to a fixed word like nanf?",
+      "Keep a tiny list of the 6 tokens; if the input equals one, mark it float-special or double-special.",
+      "Shape:\nif input is one of {nanf,+inff,-inff} -> FLOAT special\nif input is one of {nan,+inf,-inf} -> DOUBLE special"
+    ]
+  },
+  run:{
+    cmd:"make\n./convert nan\n./convert -inff\n./convert +inf",
+    expect:"double (special)\nfloat (special)\ndouble (special)",
+    mism:[
+      "nanf detected as char? The pseudo-literal check must come BEFORE the length-1 check.",
+      "+inff seen as int? Are you matching the exact string, including the + and the f?",
+      "Only nan works, not nanf? Did you list all six tokens?"
+    ]
+  },
+  explain:{
+    lines:[
+      ["input == \"nanf\"","compare the whole string to a fixed word"],
+      ["order matters","check the specials FIRST, before the length/dot checks"],
+      ["mark special","remember it so char and int print impossible later"]
+    ],
+    concept:"<b>nan</b> means not a number; <b>inf</b> means infinity. They are written words, not digits, so normal detection would mislabel them. You match the six exact tokens first. Float forms end in <code>f</code>. For these, a char and an int make no sense, so those outputs will be <b>impossible</b>.",
+    dq:"Is nan == nan true or false?",
+    da:"False. By the floating rules nan is not equal to anything, not even itself."
+  },
+  dr:{
+    goal:"./convert nan o ./convert -inff kayt-detectaw b7al double / float special.",
+    what:"Qbel detection 3adiya, qaren l string kamla m3a 6 tokens b-dabt: nanf, +inff, -inff (float) o nan, +inf, -inf (double). 3lemhom bash char/int ywelliw impossible o float/double ytab3o nanf/nan.",
+    hints:[
+      "Kifash tqaren l input kamel m3a klma tabta b7al nanf?",
+      "3ndek list sghira d 6 tokens; ila l input msawi wahed, 3lmo float-special wla double-special.",
+      "Shape:\nila input men {nanf,+inff,-inff} -> FLOAT special\nila men {nan,+inf,-inf} -> DOUBLE special"
+    ],
+    mism:[
+      "nanf kayt-detecta char? Check d pseudo-literal khass yji QBEL check d tol 1.",
+      "+inff kayban int? Wach kat-matchi l string b-dabt, m3a l + o l f?",
+      "Ghir nan khdam machi nanf? Wach 3lemti ga3 6 tokens?"
+    ],
+    concept:"nan = machi raqm; inf = infini. Homa klimat mektobin machi arqam, donc detection 3adiya ghadi tghlet. Kat-matchi 6 tokens l-lowwel. Float forms kaysaliw b f. L homa, char o int ma3andhomch m3na, donc ghadi ykono impossible.",
+    da:"False. 7sab rules d floating, nan machi msawi l ta 7aja, 7ta l raso."
+  }
+});
+
+ROUNDS.push({
+  id:"ex00-r3", ex:"ex00", exLabel:"ex00 · ScalarConverter", n:3, of:7,
+  title:"Get the real value, then the others",
+  goal:"./convert 42.0f fills all four variables (print them raw for now).",
+  skelNote:"No new files — keep working inside convert().",
+  your:{
+    where:"ex00/ScalarConverter.cpp — convert()",
+    size:"~5 lines",
+    what:"Turn the detected string into its real value (a char keeps its one letter; int/float/double use <code>atoi</code>/<code>atof</code> or a <code>stringstream</code>). Then build the other three with <code>static_cast</code>. <code>static_cast</code> to int <b>cuts off</b> the decimals.",
+    hints:[
+      "Which allowed function reads a number out of the text? Which cast turns one number type into another?",
+      "Parse with atoi/atof; then char/int/float/double via static_cast (the normal number conversion).",
+      "Shape:\nvalue = parse(text)\nc = static_cast<char>(value)\ni = static_cast<int>(value)\nf = static_cast<float>(value)\nd = static_cast<double>(value)"
+    ]
+  },
+  run:{
+    cmd:"make\n./convert 42.0f",
+    expect:"char=* int=42 float=42 double=42   (raw print for now)",
+    mism:[
+      "int is off by one? static_cast cuts off, it does not round — 42.9 → 42 is correct.",
+      "float shows garbage? Are you parsing with atof (not atoi) for floating inputs?",
+      "char is blank? For 42 the char is '*' (code 42); blank means you printed the number, not the char."
+    ]
+  },
+  explain:{
+    lines:[
+      ["parse (atoi/atof)","turn the text into one real number"],
+      ["static_cast<int>(value)","normal conversion; drops the part after the dot"],
+      ["static_cast<char>(value)","takes the number as a character code"]
+    ],
+    concept:"First you get one real value from the text. Then every other type is a normal number-or-char conversion — exactly what <code>static_cast</code> is for. Casting a floating value to int <b>truncates</b> (cuts off the decimals), it does not round.",
+    dq:"Does static_cast<int>(42.9) give 42 or 43?",
+    da:"42. static_cast truncates — it cuts off the decimals, it does not round."
+  },
+  dr:{
+    goal:"./convert 42.0f kay3ammer 4 variables (print raw daba).",
+    what:"Baddel l string l value l7aqiqiya (char kaykhelli 7arfo; int/float/double b atoi/atof wla stringstream). Mn b3d dir l 3 okhrin b static_cast. static_cast l int kay9tta3 li mora l point.",
+    hints:[
+      "Ashmen function msmo7a katqra raqm men l text? Ashmen cast kaybeddel type d raqm l akhor?",
+      "Parse b atoi/atof; mn b3d char/int/float/double b static_cast (conversion 3adiya).",
+      "Shape:\nvalue = parse(text)\nc = static_cast<char>(value)\ni = static_cast<int>(value)\nf = static_cast<float>(value)\nd = static_cast<double>(value)"
+    ],
+    mism:[
+      "int khate2 b wahed? static_cast kay9tta3 ma kaydourch - 42.9 -> 42 s7i7.",
+      "float kayban khserba? Wach kat-parsi b atof (machi atoi) l floating?",
+      "char khawi? L 42 l char howa '*' (code 42); khawi = tba3ti l raqm machi l char."
+    ],
+    concept:"L-lowwel katjib value we7da men l text. Mn b3d kul type akhor howa conversion 3adiya d raqm wla char - hada howa static_cast. Cast d floating l int kay9tta3 (truncate), ma kaydourch.",
+    da:"42. static_cast kay9tta3 - kay7ayed li mora l point, ma kaydourch."
+  }
+});
+
+ROUNDS.push({
+  id:"ex00-r4", ex:"ex00", exLabel:"ex00 · ScalarConverter", n:4, of:7,
+  title:"char: Non displayable / impossible",
+  goal:"./convert 0 → char: Non displayable; ./convert nan → char: impossible.",
+  skelNote:"No new files — this is the char output line.",
+  your:{
+    where:"ex00/ScalarConverter.cpp — the char line",
+    size:"~4 lines",
+    what:"For the char line: if the value is nan/inf → <b>impossible</b>. Else if the code is outside the printable range <b>32..126</b> → <b>Non displayable</b>. Else print it in quotes like <code>'A'</code>.",
+    hints:[
+      "Which character codes are safe to show on screen?",
+      "Printable range is 32..126. Outside it (but a real number) → Non displayable. nan/inf → impossible.",
+      "Shape:\nif nan/inf -> impossible\nelse if value<32 or value>126 -> Non displayable\nelse print '<char>'"
+    ]
+  },
+  run:{
+    cmd:"make\n./convert 0\n./convert nan\n./convert 65",
+    expect:"char: Non displayable\nchar: impossible\nchar: 'A'",
+    mism:[
+      "0 prints a weird symbol? Code 0 is below 32, so it must say Non displayable.",
+      "nan says Non displayable? nan/inf must say impossible — check that BEFORE the range.",
+      "65 not 'A'? 65 is printable; print the character, not the number."
+    ]
+  },
+  explain:{
+    lines:[
+      ["printable 32..126","only these codes show a normal character"],
+      ["impossible for nan/inf","you cannot turn 'not a number' into a character"],
+      ["quotes: 'A'","the subject shows the char inside single quotes"]
+    ],
+    concept:"A char is one byte shown as a symbol, but only codes <b>32..126</b> are printable. Below or above that, you say <b>Non displayable</b>. If the value is not even a real number (nan/inf), a char is <b>impossible</b>. Order the checks: impossible first, then range, then print.",
+    dq:"Why does ./convert 0 say Non displayable and not '0'?",
+    da:"Because code 0 is a control character, below the printable range 32..126, so it cannot be shown. The character '0' would be code 48."
+  },
+  dr:{
+    goal:"./convert 0 -> char: Non displayable; ./convert nan -> char: impossible.",
+    what:"L char line: ila l value nan/inf -> impossible. Sinon ila l code berra men 32..126 -> Non displayable. Sinon tba3 f quotes b7al 'A'.",
+    hints:[
+      "Ashmen codes d 7oruf saliyin l print 3la l ecran?",
+      "Range printable 32..126. Berra mennha (o raqm s7i7) -> Non displayable. nan/inf -> impossible.",
+      "Shape:\nila nan/inf -> impossible\nsinon ila value<32 wla value>126 -> Non displayable\nsinon tba3 '<char>'"
+    ],
+    mism:[
+      "0 kaytba3 symbol gharib? Code 0 taht 32, khass yqol Non displayable.",
+      "nan kayqol Non displayable? nan/inf khass yqol impossible - check QBEL l range.",
+      "65 machi 'A'? 65 printable; tba3 l char machi l raqm."
+    ],
+    concept:"Char howa byte wahed kayban b7al symbol, walakin ghir codes 32..126 li kayt-print. Taht wla foq = Non displayable. Ila l value machi raqm (nan/inf), char = impossible. Rtteb: impossible l-lowwel, mn b3d range, mn b3d print.",
+    da:"7it code 0 howa control character, taht l range 32..126, donc ma kayt-printach. L char '0' howa code 48."
+  }
+});
+
+ROUNDS.push({
+  id:"ex00-r5", ex:"ex00", exLabel:"ex00 · ScalarConverter", n:5, of:7,
+  title:"int: impossible on overflow",
+  goal:"./convert 9999999999 prints int: impossible.",
+  skelNote:"No new files — this is the int output line. Add #include <limits> at the top.",
+  your:{
+    where:"ex00/ScalarConverter.cpp — the int line",
+    size:"~3 lines",
+    what:"Before making the int: if the value is nan/inf, or below <code>std::numeric_limits&lt;int&gt;::min()</code>, or above <code>::max()</code>, print <b>impossible</b>. Otherwise print the int.",
+    hints:[
+      "Where do you find the biggest and smallest int a machine allows?",
+      "Use std::numeric_limits<int>::min()/max() from <limits>; compare the value against them before casting.",
+      "Shape:\nif nan/inf or value<INT_MIN or value>INT_MAX -> impossible\nelse print the int"
+    ]
+  },
+  run:{
+    cmd:"make\n./convert 9999999999\n./convert nan\n./convert 42",
+    expect:"int: impossible\nint: impossible\nint: 42",
+    mism:[
+      "Overflow still prints a wrapped number? Compare BEFORE the cast, using the value (not the int).",
+      "Compiler can't find numeric_limits? Add #include <limits>.",
+      "42 says impossible? Your range check is too tight — 42 fits in int."
+    ]
+  },
+  explain:{
+    lines:[
+      ["numeric_limits<int>::max()","the biggest int this machine can hold"],
+      ["compare before the cast","check the value first; casting an out-of-range value is undefined"],
+      ["impossible","tell the user it does not fit"]
+    ],
+    concept:"An int has a fixed range. If the real value is bigger than <code>max()</code> or smaller than <code>min()</code>, it cannot become an int — that is <b>overflow</b>, so you print impossible. You must check the value <b>before</b> casting, because casting an out-of-range value is undefined behavior.",
+    dq:"How do you know a double will not fit in an int?",
+    da:"Compare it against std::numeric_limits<int>::min() and max() from <limits>, before casting. Also treat nan and inf as impossible."
+  },
+  dr:{
+    goal:"./convert 9999999999 kaytba3 int: impossible.",
+    what:"Qbel ma tdir l int: ila l value nan/inf, wla s3ha men numeric_limits<int>::min(), wla kbir men ::max(), tba3 impossible. Sinon tba3 l int.",
+    hints:[
+      "Fin katlqa akbar o asghar int f l machine?",
+      "St3mel numeric_limits<int>::min()/max() men <limits>; qaren l value qbel l cast.",
+      "Shape:\nila nan/inf wla value<INT_MIN wla value>INT_MAX -> impossible\nsinon tba3 l int"
+    ],
+    mism:[
+      "Overflow mazal kaytba3 raqm mliwwi? Qaren QBEL l cast, b l value machi l int.",
+      "Compiler ma kaylqach numeric_limits? Zid #include <limits>.",
+      "42 kayqol impossible? Range check dyalek diyye9 bezzaf - 42 kaydkhol f int."
+    ],
+    concept:"int 3ndo range mahdod. Ila l value kbir men max() wla sghir men min(), ma y9derch ywelli int - hada overflow, donc tba3 impossible. Khass tcheck l value QBEL l cast, 7it cast d value berra men range = undefined behavior.",
+    da:"Qarno m3a numeric_limits<int>::min() o max() men <limits>, qbel l cast. O 3teber nan o inf impossible."
+  }
+});
+
+ROUNDS.push({
+  id:"ex00-r6", ex:"ex00", exLabel:"ex00 · ScalarConverter", n:6, of:7,
+  title:"Print 0.0f and 42.0",
+  goal:"Output matches the subject exactly, including the .0 and the f.",
+  skelNote:"No new files — the float and double lines. Add #include <iomanip> at the top.",
+  your:{
+    where:"ex00/ScalarConverter.cpp — the float and double lines",
+    size:"~4 lines",
+    what:"Float and double always show a decimal: <code>0.0</code>, <code>42.0</code>; float adds an <code>f</code>: <code>0.0f</code>, <code>42.0f</code>. Use <code>std::fixed</code> and <code>std::setprecision(1)</code> from <code>&lt;iomanip&gt;</code> (or add the <code>.0</code> yourself for whole numbers). Keep the char in quotes.",
+    hints:[
+      "How do you force a stream to always show one digit after the dot?",
+      "std::fixed + std::setprecision(1) keep the decimal; you add the letter f yourself for the float line.",
+      "Shape:\ncout << fixed << setprecision(1) << f << 'f';   // 42.0f\ncout << fixed << setprecision(1) << d;             // 42.0"
+    ]
+  },
+  run:{
+    cmd:"make\n./convert 0\n./convert 42.0f",
+    expect:"char: Non displayable\nint: 0\nfloat: 0.0f\ndouble: 0.0\n----\nchar: '*'\nint: 42\nfloat: 42.0f\ndouble: 42.0",
+    mism:[
+      "Shows 42f with no .0? Add std::fixed and setprecision(1).",
+      "Shows 42.000000? Use setprecision(1), not the default 6.",
+      "Missing the f? The f is text you print after the float number, not part of the cast."
+    ]
+  },
+  explain:{
+    lines:[
+      ["std::fixed","always normal decimal form, not scientific"],
+      ["setprecision(1)","one digit after the dot"],
+      ["<< 'f'","the letter f is printed text; it marks a float literal"]
+    ],
+    concept:"The subject wants float and double to look like real literals: <code>0.0f</code> and <code>0.0</code>. <code>std::fixed</code> with <code>setprecision(1)</code> forces the decimal, and you print the <code>f</code> yourself for the float line. Higher precision is allowed, but the <code>.0</code> must always show for whole numbers.",
+    dq:"Why print 42.0f and not 42f?",
+    da:"Because a float literal must show its decimal part; 42f is not the literal form. std::fixed keeps the .0 and you append the f."
+  },
+  dr:{
+    goal:"L output kaytabeq subject b-dabt, m3a l .0 o l f.",
+    what:"Float o double dima kaybayno decimal: 0.0, 42.0; float kayzid f: 0.0f, 42.0f. St3mel std::fixed o std::setprecision(1) men <iomanip> (wla zid l .0 b rasek). Khelli l char f quotes.",
+    hints:[
+      "Kifash t-forci stream ybayen raqm wahed mora l point?",
+      "std::fixed + setprecision(1) kaykhelliw l decimal; nta katzid l f l float.",
+      "Shape:\ncout << fixed << setprecision(1) << f << 'f';   // 42.0f\ncout << fixed << setprecision(1) << d;             // 42.0"
+    ],
+    mism:[
+      "Kayban 42f bla .0? Zid std::fixed o setprecision(1).",
+      "Kayban 42.000000? St3mel setprecision(1), machi 6 default.",
+      "Naqess l f? L f howa text kat-printih mora l raqm, machi part men l cast."
+    ],
+    concept:"Subject bgha float o double ybayno b7al literals: 0.0f o 0.0. std::fixed m3a setprecision(1) kay-forci l decimal, o nta kat-printi l f l float. Precision akbar msmo7, walakin l .0 khass ybayen dima l arqam s7a7.",
+    da:"7it float literal khass ybayen l decimal; 42f machi l forme d literal. std::fixed kaykhelli l .0 o nta katzid l f."
+  }
+});
+
+ROUNDS.push({
+  id:"ex00-r7", ex:"ex00", exLabel:"ex00 · ScalarConverter", n:7, of:7,
+  title:"Run the whole battery",
+  goal:"Every example from the subject prints correctly — ex00 is done.",
+  skelNote:"No new code. Run each command and compare, character by character.",
+  your:null,
+  run:{
+    cmd:"make\n./convert 0\n./convert nan\n./convert 42.0f\n./convert a\n./convert -inff\n./convert 2147483648",
+    expect:"$ ./convert 0\nchar: Non displayable\nint: 0\nfloat: 0.0f\ndouble: 0.0\n\n$ ./convert nan\nchar: impossible\nint: impossible\nfloat: nanf\ndouble: nan\n\n$ ./convert 42.0f\nchar: '*'\nint: 42\nfloat: 42.0f\ndouble: 42.0",
+    mism:[
+      "A pseudo-literal prints wrong? Go back to Round 2 (nan / inf).",
+      "A whole number lost its .0? Go back to Round 6 (format).",
+      "An overflow shows a number? Go back to Round 5 (limits)."
+    ]
+  },
+  explain:{
+    lines:[
+      ["detect","read the shape: char / int / float / double / special"],
+      ["parse","turn the text into one real value"],
+      ["static_cast","make the other three types from that value"],
+      ["guard","impossible / Non displayable / overflow before printing"],
+      ["format","fixed + setprecision + the f, char in quotes"]
+    ],
+    concept:"ex00 is a small <b>pipeline</b>: detect → parse → convert → guard → format. Each round you built one stage. Now the whole thing runs. If you can name these five stages out loud, you can explain the exercise in your defense.",
+    dq:"Walk me through what convert() does, from start to finish.",
+    da:"Detect the literal type from the string, parse it into its real value, static_cast that value to the other three types, guard the impossible / non-displayable / overflow cases, then print each line in the exact format."
+  },
+  dr:{
+    goal:"Kul mital men subject kaytba3 mzyan - ex00 sala.",
+    concept:"ex00 howa pipeline sghir: detect -> parse -> convert -> guard -> format. Kul round bniti stage. Daga kolshi kaykhdem. Ila 9derti tqol had 5 stages b fommek, t9der tfesser l exercice f defense.",
+    da:"Detecti l type men l string, parse-ih l value l7aqiqiya, static_cast l 3 types l okhrin, guard l cases impossible/non-displayable/overflow, mn b3d tba3 kul line b l format b-dabt.",
+    mism:[
+      "Pseudo-literal kaytba3 ghalet? Rje3 l Round 2 (nan / inf).",
+      "Raqm s7i7 tlef l .0 dyalo? Rje3 l Round 6 (format).",
+      "Overflow kayban raqm? Rje3 l Round 5 (limits)."
+    ]
+  }
+});
+
+/* ---------------- Glossary / Defense data (kept) ---------------- */
+var GLOSSARY = [
+  ["cast","Changing a value from one type to another, on purpose."],
+  ["conversion","Another word for a cast: turning one type into another."],
+  ["implicit","The compiler converts for you, silently, with no cast written."],
+  ["explicit","You write a cast yourself to say exactly what you want."],
+  ["scalar type","A single simple value: char, int, float, or double (not a whole object)."],
+  ["literal","A value written directly in the text, like 42 or 'a'."],
+  ["pseudo-literal","A special written value that is not a normal number: nan, inf, and their float forms nanf, inff."],
+  ["static method","A function that belongs to the class, not to one object. Called with ClassName::method()."],
+  ["instantiate","To make an object from a class. If you block it, users cannot create the class."],
+  ["pointer","A variable that holds the address of another object in memory."],
+  ["reference","Another name for an existing object. No copy is made. Written with &."],
+  ["address","The place in memory where an object lives; a pointer holds it."],
+  ["uintptr_t","An unsigned integer type big enough to hold a pointer's address as a number."],
+  ["overflow","When a value is too big (or too small) to fit in a type."],
+  ["precision","How many digits a float or double can keep; floats keep fewer than doubles."],
+  ["numeric limits","The smallest and biggest values a type can hold (from &lt;limits&gt;)."],
+  ["undefined behavior","A situation the C++ standard does not define; the program may do anything. Always a bug."],
+  ["polymorphism","Using a base type to work with many child objects, each acting as its real type."],
+  ["virtual","A mark on a function that lets the real (child) version run, chosen at run time."],
+  ["vtable","A hidden table the compiler builds for classes with virtual functions, used to pick the right one at run time."],
+  ["RTTI","Run-Time Type Information: data the program keeps about the real type; dynamic_cast uses it."],
+  ["upcast","Casting a child up to its base type (A* to Base*). Always safe."],
+  ["downcast","Casting a base down to a child type (Base* to A*). Needs dynamic_cast to be safe."],
+  ["include guard","#ifndef / #define / #endif lines that stop a header being pasted twice."],
+  ["heap","The memory you get with new; you must give it back with delete."],
+  ["argv","The array of text arguments given to your program; argv[1] is the first one you type."]
+];
+
+var DEFENSE = [
+  ["What are the four C++ casts?","static_cast for normal conversions, reinterpret_cast for raw bits (pointer and integer), const_cast to add or remove const, dynamic_cast for a safe checked down-cast at run time."],
+  ["Why not just use the C cast (type)x?","Because it can silently do any of the four jobs, even a dangerous one, and you cannot see which. Named casts show intent, are searchable, and the compiler can refuse a wrong one."],
+  ["Which cast did you use in ex00 and why?","static_cast, because turning the value into char, int, float, or double are normal conversions between related number/char types."],
+  ["Does static_cast<int> round or cut off?","It cuts off the part after the dot. static_cast<int>(42.9) is 42, not 43."],
+  ["Why reinterpret_cast in ex01?","Because a pointer and an integer are not related types. Only reinterpret_cast can move the raw bits between them. static_cast would be refused by the compiler."],
+  ["What is uintptr_t and where is it from?","An unsigned integer type guaranteed big enough to hold a pointer. In C++98 it comes from the C header <stdint.h>."],
+  ["Why not use int or long to hold the pointer?","They may be too small on some systems, so part of the address could be lost. uintptr_t is guaranteed to fit."],
+  ["Why does the pointer round-trip come back equal?","Because the bits never change. You only re-label the same value: pointer to integer to pointer. Same address, same object."],
+  ["What is dynamic_cast?","A cast that checks the real type of an object at run time and safely converts down a class family."],
+  ["What does dynamic_cast return when it fails?","On a pointer it returns NULL. On a reference it throws std::bad_cast (you catch it)."],
+  ["Why does Base need a virtual destructor?","So deleting a child through a Base* also runs the child destructor (no leak, no undefined behavior), and so the class is polymorphic, which dynamic_cast requires."],
+  ["What breaks if the destructor is not virtual?","Deleting a child through a Base* is undefined behavior, and dynamic_cast will not work because the class is not polymorphic."],
+  ["What is RTTI and why does dynamic_cast need it?","Run-Time Type Information is data the program keeps about the real type of polymorphic objects. dynamic_cast reads it to decide the true type."],
+  ["What happens if you delete a derived object through a non-virtual base pointer?","Undefined behavior: usually only the base part is destroyed, so the child part leaks or corrupts."],
+  ["How did you stop users from creating a ScalarConverter?","I made the whole canonical form private, so there is no public constructor and the class cannot be instantiated."],
+  ["What is a static method and can it use member variables?","A method that belongs to the class, not an object. It cannot use non-static members because there is no object."],
+  ["How do you detect that a double does not fit in an int?","Compare it against std::numeric_limits<int>::min() and max() from <limits> before casting. Also reject nan and inf."],
+  ["What is nan? What is inf?","nan means 'not a number' (an invalid result). inf means infinity. For them, char and int are impossible."],
+  ["Why is nan != nan true?","By the floating rules, nan is not equal to anything, including itself. So nan == nan is false."],
+  ["Difference between upcast and downcast?","Upcast goes child to base (always safe). Downcast goes base to child (needs dynamic_cast to be safe)."],
+  ["Is reinterpret_cast portable or safe?","It is not safe and not fully portable in general. But the pointer to uintptr_t and back round-trip is well defined, which is why ex01 is fine."],
+  ["Why must identify(Base&) not use a pointer, and how do you know the type?","The subject forbids pointers inside it. You use dynamic_cast to a reference inside try/catch; a wrong type throws std::bad_cast."],
+  ["What is the difference between a pointer and a reference?","A pointer holds an address, can be NULL, and can change what it points to. A reference is a fixed second name for one object and is never null."],
+  ["Why is the C cast hard to search for in a codebase?","It has no keyword. reinterpret_cast is a word you can grep for; (type)x looks like normal code."],
+  ["Where do you use const_cast in this module?","Nowhere. It is only for adding or removing const, which these exercises do not need. Using it is usually a code smell."],
+  ["What does 'explicitly convert' mean in the ex00 subject?","Use a named cast that you write yourself, instead of letting the compiler convert silently."],
+  ["Why must Data be non-empty in ex01?","So the object really uses memory and has a real address to point to and serialize."]
+];
+
+var TR_GLOSSARY = {
+"cast":"Tbdil value men type l type akhor, b 9asd.",
+"conversion":"Klma okhra l cast: tbdil type l type.",
+"implicit":"Compiler kaydir l conversion b raso, f sket, bla cast mektob.",
+"explicit":"Nta katkteb cast b rasek bash tqol b-dabt ash bghiti.",
+"scalar type":"Value bsita we7da: char, int, float, wla double (machi object kamel).",
+"literal":"Value mektoba directement f l text, b7al 42 wla 'a'.",
+"pseudo-literal":"Value mektoba khassa machi raqm 3adi: nan, inf, o float forms nanf, inff.",
+"static method":"Fonction tab3a l classe, machi l object. Kat3eyyetha b ClassName::method().",
+"instantiate":"Dir object men classe. Ila blokitih, users ma y9derouch ydiro l classe.",
+"pointer":"Variable li kay7mel l adresse d object akhor f memory.",
+"reference":"Smiya okhra l object mwjod. Makatdarch copy. Kaytkteb b &.",
+"address":"L blasa f memory fin kaysken l object; pointer kay7melha.",
+"uintptr_t":"Unsigned integer type kbir bezzaf bash y7mel l adresse d pointer b7al raqm.",
+"overflow":"Mnin value kbira bezzaf (wla sghira bezzaf) bash tdkhol f type.",
+"precision":"Sh7al d arqam float wla double y9der y7tafed bihom; float 9ell men double.",
+"numeric limits":"L asghar o l akbar value li type y9der y7mel (men <limits>).",
+"undefined behavior":"7ala li l standard d C++ ma 3arrafhach; l program y9der ydir ay 7aja. Dima bug.",
+"polymorphism":"St3mal type base bash tkhdem m3a bezzaf d objects d weld, kul wa7ed kaykhdem b7al l type l7aqiqi dyalo.",
+"virtual":"3lam 3la fonction kaykhelli l version l7aqiqi (d l weld) ykhdem, mkhtar f run time.",
+"vtable":"Table khbiya li compiler kaybniha l classes b virtual functions, bash ykhtar l s7i7a f run time.",
+"RTTI":"Run-Time Type Information: data li l program kay7tafed biha 3la l type l7aqiqi; dynamic_cast kayst3melha.",
+"upcast":"Cast men weld l base (A* l Base*). Dima maamon.",
+"downcast":"Cast men base l weld (Base* l A*). M7taj dynamic_cast bash ykon maamon.",
+"include guard":"Stor #ifndef/#define/#endif li kaymne3o header ma ytlesse9ch juj merrat.",
+"heap":"L memory li katjibha b new; khassek trje3ha b delete.",
+"argv":"L array d arguments d l program; argv[1] howa l-lowwel li katkteb."
+};
+
+var TR_DEFENSE = [
+"4 d casts: static_cast l conversions 3adiyin, reinterpret_cast l raw bits (pointer o integer), const_cast bash tzid/t7ayed const, dynamic_cast l down-cast maamon mchecked f run time.",
+"7it C cast y9der ydir ay we7ed men 4, 7ta li khatir, o nta ma katchofch ashmen. Named casts kaybayno niyya, sahlin l search, o compiler y9der yerfed l ghalt.",
+"static_cast, 7it tbdil l value l char/int/float/double conversions 3adiyin bin types d raqm/char.",
+"Kay9tta3 li mora l point. static_cast<int>(42.9) = 42 machi 43.",
+"7it pointer o integer machi types qrab. Ghir reinterpret_cast y9der ynqel l raw bits. static_cast ghadi yrefdo compiler.",
+"Unsigned integer type madmon kbir bezzaf bash y7mel pointer. F C++98 kayji men <stdint.h>.",
+"Y9derou ykono sghar bezzaf 3la chi systems, donc part men l adresse tdiya3. uintptr_t madmon belli kaydkhol.",
+"7it l bits ma tbdlouch. Ghir kat-re-label nafs l value: pointer->integer->pointer. Nafs l adresse, nafs l object.",
+"Cast li kaycheck l type l7aqiqi f run time o kaydir conversion maamona l l weld f l 3a'ila.",
+"3la pointer kayrjje3 NULL. 3la reference kaytiye7 std::bad_cast (kat9bedha).",
+"Bash delete l weld 3bar Base* y3awed destructor d l weld (bla leak wla UB), o bash l classe tkon polymorphic li dynamic_cast m7tajha.",
+"Delete l weld 3bar Base* = undefined behavior, o dynamic_cast ma ghadich ykhdem 7it l classe machi polymorphic.",
+"Run-Time Type Information hiya data li l program kay7tafed biha 3la l type l7aqiqi d objects polymorphic. dynamic_cast kayqraha bash y9arrar l type s7i7.",
+"Undefined behavior: ghaliban ghir l part d base kayt7ayed, donc l part d weld kaysiyeb wla kaytkhreb.",
+"Dert ga3 l OCF private, donc makayn public constructor o l classe ma t9derch ttebna.",
+"Method tab3a l classe machi object. Ma y9derch yst3mel members non-static 7it makayn object.",
+"Qarnhom m3a std::numeric_limits<int>::min() o max() men <limits> qbel l cast. O rfed nan o inf.",
+"nan = 'machi raqm' (natija ghalta). inf = infini. L homa, char o int impossible.",
+"7sab rules d floating, nan machi msawi l 7ta 7aja, 7ta l raso. Donc nan==nan false.",
+"Upcast men weld l base (dima maamon). Downcast men base l weld (m7taj dynamic_cast bash ykon maamon).",
+"Machi maamon o machi portable f l3am. Walakin l round-trip d pointer l uintptr_t o rjo3 m3arraf mzyan, 3la hadshi ex01 mzyan.",
+"Subject kaymne3 pointers dakhelha. Katst3mel dynamic_cast l reference f try/catch; type ghalet kaytiye7 std::bad_cast.",
+"Pointer kay7mel adresse, y9der ykon NULL, o y9der ybeddel l 7aja li kay-pointi 3liha. Reference smiya tabta l object we7ed o 3emmerha NULL.",
+"Ma 3ndhach keyword. reinterpret_cast klma t9der t-grepiha; (type)x kayban b7al code 3adi.",
+"7ta blasa. Ghir l ziyada wla t7yad d const, li had exercises ma m7tajinhach. St3malo ghaliban code smell.",
+"St3mal named cast li katketbo b rasek, 3wad ma tkhelli compiler ybeddel f sket.",
+"Bash l object y3mer memory o ykon 3ndo adresse l7aqiqiya bash t-pointi o t-serializi."
+];
+
+/* ---------------- state ---------------- */
+var LSKEY = "cpp06guide.v3";
+var state = load();
+function load(){
+  try{ var s = JSON.parse(localStorage.getItem(LSKEY)); if(s && s.rounds) return s; }catch(e){}
+  return { rounds:{}, active:(ROUNDS[0]?ROUNDS[0].id:""), tab:"guide", darija:false };
+}
+function save(){ try{ localStorage.setItem(LSKEY, JSON.stringify(state)); }catch(e){} }
+function rState(id){ if(!state.rounds[id]) state.rounds[id]={done:false,notes:"",explained:false}; return state.rounds[id]; }
+function rIndex(id){ for(var i=0;i<ROUNDS.length;i++) if(ROUNDS[i].id===id) return i; return 0; }
+
+/* ---------------- copy buttons (delegated) ---------------- */
+document.addEventListener("click", function(e){
+  var b = e.target && e.target.closest ? e.target.closest(".copybtn") : null;
+  if(!b) return;
+  var pre = document.getElementById(b.getAttribute("data-target"));
+  if(!pre) return;
+  var text = pre.textContent;
+  var done = function(){ var old=b.textContent; b.textContent="Copied!"; setTimeout(function(){b.textContent=old;},1200); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text,done); });
+  } else { fallbackCopy(text,done); }
+});
+function fallbackCopy(text, done){
+  var ta=document.createElement("textarea"); ta.value=text;
+  ta.style.position="fixed"; ta.style.top="-1000px"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ---------------- 15-minute timer ---------------- */
+var T={sec:900,id:null,run:false};
+function fmt(s){ var m=Math.floor(s/60), ss=s%60; return (m<10?"0":"")+m+":"+(ss<10?"0":"")+ss; }
+function updTimer(){ var d=document.getElementById("timerDisp"); if(d) d.textContent=fmt(T.sec); }
+function timerTick(){
+  if(T.sec>0){ T.sec--; updTimer(); }
+  if(T.sec===0){ pauseTimer(); var m=document.getElementById("timerMsg"); if(m) m.textContent="Stop here. Save your place. Come back later."; }
+}
+function startTimer(){ if(T.run||T.sec===0) return; T.run=true; T.id=setInterval(timerTick,1000); }
+function pauseTimer(){ T.run=false; if(T.id){ clearInterval(T.id); T.id=null; } }
+function resetTimer(){ pauseTimer(); T.sec=900; updTimer(); var m=document.getElementById("timerMsg"); if(m) m.textContent=""; }
+
+/* ---------------- sidebar ---------------- */
+function renderSidebar(){
+  var side=document.getElementById("sidebar"); side.innerHTML="";
+  var groups={}, order=[];
+  for(var i=0;i<ROUNDS.length;i++){ var r=ROUNDS[i]; if(!groups[r.ex]){ groups[r.ex]=[]; order.push(r.ex); } groups[r.ex].push(r); }
+  for(var g=0; g<order.length; g++){
+    var ex=order[g];
+    var wrap=document.createElement("div"); wrap.className="side-part";
+    var lbl=document.createElement("div"); lbl.className="plabel"; lbl.textContent=groups[ex][0].exLabel; wrap.appendChild(lbl);
+    for(var k=0;k<groups[ex].length;k++){
+      (function(r){
+        var done=rState(r.id).done, active=(r.id===state.active);
+        var b=document.createElement("button");
+        b.className="side-step"+(active?" active":"");
+        var dotc=done?"done":(active?"current":"todo");
+        var dotg=done?"&#10003;":"";
+        b.innerHTML='<span class="dot '+dotc+'">'+dotg+'</span><span class="st-title">R'+r.n+' &middot; '+esc(r.title)+'</span>';
+        b.onclick=function(){ state.active=r.id; save(); renderAll(); window.scrollTo(0,0); };
+        wrap.appendChild(b);
+      })(groups[ex][k]);
+    }
+    side.appendChild(wrap);
+  }
+}
+
+/* ---------------- your-part + hints block ---------------- */
+function yourPartHTML(your, drWhat, drHints){
+  if(!your) return '<div class="box your"><h3><span class="ic">YOUR PART</span> Nothing to write</h3><p>No new code this round. Just run the commands below and compare.</p></div>';
+  var h='<div class="box your"><h3><span class="ic">YOUR PART</span> You write this <span class="sz">'+esc(your.size)+'</span></h3>';
+  h+='<p style="margin:.2rem 0 .4rem"><span class="tag">'+esc(your.where)+'</span></p>';
+  h+='<p>'+your.what+'</p>'+dr(drWhat);
+  if(your.hints){
+    h+='<div class="hints"><div class="hintbtns">';
+    for(var i=0;i<your.hints.length;i++) h+='<button class="hintbtn" data-h="'+i+'">Show hint '+(i+1)+'</button>';
+    h+='</div>';
+    for(var j=0;j<your.hints.length;j++){
+      var lvl=j===0?"Level 1 &middot; a question":(j===1?"Level 2 &middot; the idea":"Level 3 &middot; pseudo-code shape (not real C++)");
+      h+='<div class="hintpanel" data-hp="'+j+'"><div class="lvl">'+lvl+'</div><pre>'+esc(your.hints[j])+'</pre>'+drPre(drHints&&drHints[j])+'</div>';
+    }
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+
+/* ---------------- run block ---------------- */
+function runHTML(run, drMism){
+  var h='<div class="box run"><h3><span class="ic">RUN</span> Do this, expect exactly this</h3>';
+  h+='<pre class="cmd">'+esc(run.cmd)+'</pre>';
+  h+='<div class="explabel">You should see:</div><pre>'+esc(run.expect)+'</pre>';
+  if(run.mism && run.mism.length){
+    h+='<div class="mism"><div class="mismhead">If it does NOT match, ask yourself:</div><ul class="tight">';
+    for(var i=0;i<run.mism.length;i++) h+='<li>'+esc(run.mism[i])+'</li>';
+    h+='</ul>'+drUl(drMism)+'</div>';
+  }
+  return h+'</div>';
+}
+
+/* ---------------- main round render ---------------- */
+function renderRound(){
+  var main=document.getElementById("stepMain"); cbSeq=0;
+  var r=null; for(var i=0;i<ROUNDS.length;i++) if(ROUNDS[i].id===state.active) r=ROUNDS[i];
+  if(!r){ r=ROUNDS[0]; state.active=r.id; }
+  var st=rState(r.id), d=r.dr||{};
+  var idx=rIndex(r.id);
+  var html="";
+
+  html+='<div class="whybox"><b>Why this order:</b> ex01 first (easiest, ~20 min), then ex02 (medium), then ex00 last (hardest). Small wins first build momentum — ex00 is the one that ate your 3 days, so we hit it with a warm brain.'+
+        dr("3lash had l tartib: ex01 l-lowwel (as-hal, ~20 min), mn b3d ex02 (metwasset), o ex00 f l-akher (s3ib). Rb7 sghir f l-bdaya kay3tik momentum - ex00 howa li kla 3lik 3 iyam, ndirouh b mokh skhon.")+'</div>';
+
+  html+='<div class="crumb">'+esc(r.exLabel)+' &nbsp;/&nbsp; Round '+r.n+' of '+r.of+'</div>';
+  html+='<h1 class="steptitle">'+esc(r.title)+'</h1>';
+
+  html+='<div class="box goalb"><h3><span class="ic">GOAL</span> When this round is done</h3><p>'+esc(r.goal)+'</p>'+dr(d.goal)+'</div>';
+
+  if(r.skeleton && r.skeleton.length){
+    html+='<div class="box skel"><h3><span class="ic">SKELETON</span> Paste this — I wrote it (boilerplate)</h3>';
+    if(r.skelNote) html+='<p>'+r.skelNote+'</p>';
+    for(var s=0;s<r.skeleton.length;s++) html+=codeBlock(r.skeleton[s].name, r.skeleton[s].code);
+    html+='</div>';
+  }
+
+  html+='<div class="mainflow" id="mainflow">';
+  html+=yourPartHTML(r.your, d.what, d.hints);
+  html+=runHTML(r.run, d.mism);
+  html+='</div>';
+
+  /* split panel */
+  html+='<div class="splitwrap" id="splitWrap">';
+  if(r.split && r.split.length){
+    html+='<p style="margin-top:0;color:var(--amber)"><b>Smaller pieces — do them one at a time:</b></p>';
+    for(var sp=0; sp<r.split.length; sp++){
+      var subr=r.split[sp];
+      html+='<div class="subround"><h4>'+esc(subr.title)+'</h4>';
+      html+='<p><b>Goal:</b> '+esc(subr.goal)+'</p>'+dr(subr.drGoal);
+      if(subr.skelNote) html+='<p>'+subr.skelNote+'</p>';
+      if(subr.your){
+        html+='<p style="margin:.4rem 0 .2rem"><span class="tag">'+esc(subr.your.where)+'</span> <span class="sz">'+esc(subr.your.size)+'</span></p>';
+        html+='<p>'+subr.your.what+'</p>'+dr(subr.drWhat);
+      }
+      if(subr.run) html+='<pre class="cmd">'+esc(subr.run.cmd)+'</pre><div class="explabel">Expect:</div><pre>'+esc(subr.run.expect)+'</pre>';
+      html+='</div>';
+    }
+  } else {
+    html+='<p style="margin:0;color:var(--amber)"><b>This round is already small.</b> Make it tinier: open only <b>Hint 1</b>, write just the <b>first line</b> of your part, run it, then come back for the rest.</p>'+
+          dr("Had round deja sghir. Sghro ktar: 7ell ghir Hint 1, kteb ghir l line l-lowwel, jerreb, mn b3d kmmel l ba9i.");
+  }
+  html+='<button class="btn ghost" id="splitBack" style="margin-top:.8rem">Back to the full round</button>';
+  html+='</div>';
+
+  /* controls */
+  html+='<div class="ctrlrow">';
+  html+='<div class="timer"><span class="timerdisp" id="timerDisp">15:00</span>'+
+        '<button class="tbtn" id="tStart">Start</button>'+
+        '<button class="tbtn" id="tPause">Pause</button>'+
+        '<button class="tbtn" id="tReset">Reset</button></div>';
+  html+='<button class="splitbtn" id="splitBtn">Too big — split it</button>';
+  html+='<div class="timermsg" id="timerMsg"></div>';
+  html+='</div>';
+
+  /* explain reveal */
+  html+='<button class="bigbtn" id="explainBtn">It works — explain it to me</button>';
+  html+='<button class="skiplink" id="skipBtn">Skip explanation for now →</button>';
+
+  html+='<div class="explainwrap'+(st.explained?' show':'')+'" id="explainWrap">';
+  html+='<div class="box explain"><h3><span class="ic">EXPLAIN</span> Now that it runs — line by line</h3>';
+  if(r.explain.lines){
+    for(var e=0;e<r.explain.lines.length;e++){
+      html+='<div class="exline"><code>'+esc(r.explain.lines[e][0])+'</code><span class="mean">'+esc(r.explain.lines[e][1])+'</span></div>';
+    }
+  }
+  html+='<p style="margin-top:.9rem">'+r.explain.concept+'</p>'+dr(d.concept);
+  html+='<div class="dqbox"><div class="dqq">'+esc(r.explain.dq)+'</div>'+
+        '<button class="btn ghost dqbtn" id="dqBtn">Show answer</button>'+
+        '<div class="dqa" id="dqA">'+esc(r.explain.da)+dr(d.da)+'</div></div>';
+  html+='</div></div>';
+
+  /* notes + done */
+  html+='<div class="donerow"><input type="checkbox" id="doneChk" '+(st.done?"checked":"")+'>';
+  html+='<div style="flex:1"><label for="doneChk">I finished this round (it compiles and the output matches)</label>';
+  html+='<textarea class="notes" id="notes" placeholder="One line for you: what did this round teach me?">'+esc(st.notes||"")+'</textarea></div></div>';
+
+  /* nav */
+  html+='<div class="navbtns">';
+  html+= idx>0 ? '<button class="btn ghost" id="prevBtn">&larr; Previous round</button>' : '<span></span>';
+  html+= idx<ROUNDS.length-1 ? '<button class="btn" id="nextBtn">Next round &rarr;</button>' : '<span class="tag">Last round &#127881;</span>';
+  html+='</div>';
+
+  main.innerHTML=html;
+  wireRound(r, idx);
+  resetTimer();
+}
+
+function wireRound(r, idx){
+  var main=document.getElementById("stepMain");
+  // hints
+  var btns=main.querySelectorAll(".hintbtn");
+  for(var i=0;i<btns.length;i++){
+    (function(b){ b.onclick=function(){
+      var hp=b.parentNode.parentNode.querySelector('.hintpanel[data-hp="'+b.getAttribute("data-h")+'"]');
+      var open=hp.classList.toggle("show"); b.classList.toggle("open",open);
+    };})(btns[i]);
+  }
+  // timer
+  main.querySelector("#tStart").onclick=startTimer;
+  main.querySelector("#tPause").onclick=pauseTimer;
+  main.querySelector("#tReset").onclick=resetTimer;
+  // split
+  var sw=main.querySelector("#splitWrap"), mf=main.querySelector("#mainflow"), sb=main.querySelector("#splitBtn");
+  sb.onclick=function(){ sw.classList.add("show"); mf.style.display="none"; sb.style.display="none"; sw.scrollIntoView({block:"nearest"}); };
+  main.querySelector("#splitBack").onclick=function(){ sw.classList.remove("show"); mf.style.display=""; sb.style.display=""; };
+  // explain
+  var ew=main.querySelector("#explainWrap");
+  main.querySelector("#explainBtn").onclick=function(){ ew.classList.add("show"); rState(r.id).explained=true; save(); ew.scrollIntoView({block:"nearest"}); };
+  main.querySelector("#skipBtn").onclick=function(){ if(idx<ROUNDS.length-1){ state.active=ROUNDS[idx+1].id; save(); renderAll(); window.scrollTo(0,0);} };
+  main.querySelector("#dqBtn").onclick=function(){ main.querySelector("#dqA").classList.toggle("show"); };
+  // done + notes
+  var chk=main.querySelector("#doneChk");
+  chk.onchange=function(){ rState(r.id).done=chk.checked; save(); renderSidebar(); updateProgress(); };
+  var notes=main.querySelector("#notes");
+  notes.oninput=function(){ rState(r.id).notes=notes.value; save(); };
+  // nav
+  var pb=main.querySelector("#prevBtn"); if(pb) pb.onclick=function(){ state.active=ROUNDS[idx-1].id; save(); renderAll(); window.scrollTo(0,0); };
+  var nb=main.querySelector("#nextBtn"); if(nb) nb.onclick=function(){ state.active=ROUNDS[idx+1].id; save(); renderAll(); window.scrollTo(0,0); };
+}
+
+/* ---------------- progress ---------------- */
+function updateProgress(){
+  var done=0; for(var i=0;i<ROUNDS.length;i++) if(rState(ROUNDS[i].id).done) done++;
+  var pct=ROUNDS.length?Math.round(done/ROUNDS.length*100):0;
+  document.getElementById("progfill").style.width=pct+"%";
+  document.getElementById("progtext").textContent=pct+"%";
+}
+
+/* ---------------- glossary / defense / progress views ---------------- */
+function renderGlossary(){
+  var b=document.getElementById("glossaryBody");
+  var h='<h2>Glossary</h2><p>Every word you need, one easy sentence each.</p><dl>';
+  for(var i=0;i<GLOSSARY.length;i++){ var g=GLOSSARY[i]; h+='<div class="gterm"><dt>'+esc(g[0])+'</dt><dd>'+g[1]+dr(TR_GLOSSARY[g[0]])+'</dd></div>'; }
+  b.innerHTML=h+'</dl>';
+}
+function renderDefense(){
+  var b=document.getElementById("defenseBody");
+  var h='<h2>Defense questions</h2><p>'+DEFENSE.length+' questions an evaluator can ask. Click one to see a short answer you can say out loud.</p>';
+  for(var i=0;i<DEFENSE.length;i++){ var q=DEFENSE[i]; h+='<details class="qa"><summary>'+esc(q[0])+'</summary><div class="a"><p>'+esc(q[1])+'</p>'+dr(TR_DEFENSE[i])+'</div></details>'; }
+  b.innerHTML=h;
+}
+function renderProgressView(){
+  var b=document.getElementById("progressBody");
+  var done=0; for(var i=0;i<ROUNDS.length;i++) if(rState(ROUNDS[i].id).done) done++;
+  var pct=ROUNDS.length?Math.round(done/ROUNDS.length*100):0;
+  var h='<h2>Your progress</h2><p><strong>'+done+' / '+ROUNDS.length+'</strong> rounds done ('+pct+'%).</p>';
+  h+='<div class="progbar" style="height:12px;margin:0 0 1.5rem"><div class="progfill" style="width:'+pct+'%"></div></div>';
+  h+='<h2>Your notes</h2>'; var any=false;
+  for(var j=0;j<ROUNDS.length;j++){ var r=ROUNDS[j], ss=state.rounds[r.id];
+    if(ss && ss.notes && ss.notes.trim()){ any=true;
+      h+='<p style="margin:.8rem 0 .1rem"><strong>R'+r.n+' &middot; '+esc(r.title)+'</strong> '+(ss.done?'<span class="pill ok">done</span>':'')+'</p>';
+      h+='<div class="note-block">'+esc(ss.notes)+'</div>'; } }
+  if(!any) h+='<p style="color:var(--muted)">No notes yet. Add a note at the bottom of each round.</p>';
+  b.innerHTML=h;
+}
+
+/* ---------------- tabs ---------------- */
+function setTab(name){
+  state.tab=name; save();
+  var tabs=document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++) tabs[i].classList.toggle("active", tabs[i].getAttribute("data-view")===name);
+  var views=document.querySelectorAll(".view");
+  for(var j=0;j<views.length;j++) views[j].classList.remove("active");
+  document.getElementById("view-"+name).classList.add("active");
+  if(name==="glossary") renderGlossary();
+  if(name==="defense") renderDefense();
+  if(name==="progress") renderProgressView();
+}
+
+/* ---------------- boot ---------------- */
+function renderAll(){ renderSidebar(); renderRound(); updateProgress(); }
+
+document.getElementById("tabs").addEventListener("click",function(e){
+  var t=e.target.closest(".tab"); if(t) setTab(t.getAttribute("data-view"));
+});
+document.getElementById("resetBtn").onclick=function(){
+  if(confirm("Reset all progress and notes? This cannot be undone.")){
+    var keep=state.darija;
+    state={ rounds:{}, active:(ROUNDS[0]?ROUNDS[0].id:""), tab:"guide", darija:keep };
+    save(); setTab("guide"); renderAll(); applyLang(); window.scrollTo(0,0);
+  }
+};
+var langBtn=document.getElementById("langBtn");
+function applyLang(){
+  var on=!!state.darija;
+  document.body.classList.toggle("dr-on", on);
+  langBtn.classList.toggle("on", on);
+  langBtn.innerHTML=(on?"🇲🇦 Darija: ON":"🇲🇦 Darija: OFF");
+}
+langBtn.onclick=function(){ state.darija=!state.darija; save(); applyLang(); };
+
+setTab(state.tab||"guide");
+renderAll();
+applyLang();
+</script>
